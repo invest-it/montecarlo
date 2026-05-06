@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "build:wasm": "bash scripts/build-wasm.sh",
+    "dev": "bun run build:wasm && cd web && bun dev",
+    "build": "bun run build:wasm && cd web && bun run build"
+  }
+}
