@@ -1,0 +1,1 @@
+- [ ] Session logic: Create a new session with a random session id
