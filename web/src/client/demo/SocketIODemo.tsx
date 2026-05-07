@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { socket } from "./socket";
+import { socket } from "../socket";
 import { ConnectionManager } from "./ConnectionManager";
 import { ConnectionState } from "./ConnectionState";
 import { Events } from "./Events";
 import { MyForm } from "./MyForm";
 
-export function App() {
+export function SocketIODemo() {
     const [isConnected, setIsConnected] = useState(socket.connected);
     const [fooEvents, setFooEvents] = useState([]);
 
@@ -34,7 +34,7 @@ export function App() {
     }, []);
 
     return (
-        <div className="app">
+        <div>
             <ConnectionState isConnected={isConnected} />
             <Events events={fooEvents} />
             <ConnectionManager />
@@ -43,4 +43,4 @@ export function App() {
     );
 }
 
-export default App;
+export default SocketIODemo;

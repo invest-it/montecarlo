@@ -3,7 +3,7 @@ import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { swaggerUI } from "@hono/swagger-ui";
 import index from "../public/index.html";
 import socket from "./server/socket";
-import roomHandlers from "./server/rooms";
+import roomHandlers from "./server/rooms/room-handlers";
 
 const app = new OpenAPIHono();
 
