@@ -5,14 +5,22 @@ interface Props {
     disabled?: boolean;
 }
 
-export function AssetAllocations({ labels, allocations, onChange, disabled }: Props) {
+export function AssetAllocations({
+    labels,
+    allocations,
+    onChange,
+    disabled,
+}: Props) {
     function handleChange(i: number, newValue: number) {
         const remaining = 100 - newValue;
         const next = [...allocations];
         next[i] = newValue;
 
-        const others = labels.map((_, j) => j).filter(j => j !== i);
-        const othersSum = others.reduce((sum, j) => sum + (allocations[j] ?? 0), 0);
+        const others = labels.map((_, j) => j).filter((j) => j !== i);
+        const othersSum = others.reduce(
+            (sum, j) => sum + (allocations[j] ?? 0),
+            0,
+        );
 
         if (othersSum === 0) {
             // Distribute remaining equally across the other sliders
@@ -24,14 +32,21 @@ export function AssetAllocations({ labels, allocations, onChange, disabled }: Pr
             // Largest remainder method: floor each share, then give +1 to the
             // highest-fractional slots until the total reaches `remaining`.
             // Guarantees all values >= 0 and an exact sum of 100.
-            const exact = others.map(j => (allocations[j] ?? 0) / othersSum * remaining);
-            others.forEach((j, k) => { next[j] = Math.floor(exact[k]!); });
-            const leftover = remaining - others.reduce((sum, j) => sum + (next[j] ?? 0), 0);
+            const exact = others.map(
+                (j) => ((allocations[j] ?? 0) / othersSum) * remaining,
+            );
+            others.forEach((j, k) => {
+                next[j] = Math.floor(exact[k]!);
+            });
+            const leftover =
+                remaining - others.reduce((sum, j) => sum + (next[j] ?? 0), 0);
             others
                 .map((j, k) => ({ j, frac: exact[k]! % 1 }))
                 .sort((a, b) => b.frac - a.frac)
                 .slice(0, leftover)
-                .forEach(({ j }) => { next[j] = (next[j] ?? 0) + 1; });
+                .forEach(({ j }) => {
+                    next[j] = (next[j] ?? 0) + 1;
+                });
         }
 
         onChange(next);
@@ -39,7 +54,9 @@ export function AssetAllocations({ labels, allocations, onChange, disabled }: Pr
 
     return (
         <div>
-            <span className="text-sm font-medium">Asset Allocations</span>
+            <span className="text-lg font-medium mb-2 block">
+                Asset Allocations
+            </span>
             {labels.map((label, i) => (
                 <div key={label} className="flex items-center gap-3 mb-2">
                     <span className="w-24 text-sm">{label}</span>
@@ -48,11 +65,15 @@ export function AssetAllocations({ labels, allocations, onChange, disabled }: Pr
                         min={0}
                         max={100}
                         value={allocations[i]}
-                        onChange={(e) => handleChange(i, Number(e.target.value))}
+                        onChange={(e) =>
+                            handleChange(i, Number(e.target.value))
+                        }
                         className="flex-1"
                         disabled={disabled}
                     />
-                    <span className="w-10 text-sm text-right">{allocations[i]}%</span>
+                    <span className="w-10 text-sm text-right">
+                        {allocations[i]}%
+                    </span>
                 </div>
             ))}
         </div>

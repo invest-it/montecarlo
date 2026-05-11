@@ -4,6 +4,7 @@ import {
     step_averaged_monte_carlo,
     run_grouped_monte_carlo,
     run_percentile_monte_carlo,
+    run_combined_monte_carlo,
     type InitOutput,
 } from "@/wasm/core";
 
@@ -17,33 +18,46 @@ export interface PingMsg {
     type: "ping";
 }
 
-export interface RunMCMsg {
-    type: "run_averaged_mc" | "run_grouped_mc" | "run_percentile_mc";
+export interface RunMsg {
+    type: "run_averaged" | "run_grouped" | "run_percentile" | "run_combined";
     allocations: number[];
     seed?: number;
     n_groups?: number;
 }
 
-export type InboundMsg = InitMsg | PingMsg | RunMCMsg;
+export type InboundMsg = InitMsg | PingMsg | RunMsg;
 
 // ── Outbound message types ───────────────────────────────────────────────────
 
 export interface ReadyMsg {
     type: "ready";
 }
+
 export interface ResultMsg {
     type: "result";
     result: unknown;
 }
 
-export interface MCUpdateMsg {
-    type: "mc_update";
+export interface UpdateMsg {
+    type: "sim_update";
     step: number;
     update: number[];
 }
 
-export interface MCResultMsg {
-    type: "mc_result";
+export interface CombinedUpdate {
+    avg: Float64Array;
+    groups: Float64Array;
+    pcts: Float64Array;
+}
+
+export interface CombinedUpdateMsg {
+    type: "combined_update";
+    step: number;
+    update: CombinedUpdate;
+}
+
+export interface SimResultMsg {
+    type: "sim_result";
     result: number;
     durationMs: number;
 }
@@ -58,8 +72,9 @@ export type OutboundMsg =
     | ReadyMsg
     | ResultMsg
     | ErrorMsg
-    | MCUpdateMsg
-    | MCResultMsg;
+    | UpdateMsg
+    | CombinedUpdateMsg
+    | SimResultMsg;
 
 // ── State ────────────────────────────────────────────────────────────────────
 
@@ -77,78 +92,66 @@ async function init() {
     }
 }
 
-async function runGroupedMC(data: RunMCMsg) {
-    if (!instance) {
-        await init();
-    }
-    const allocation = new Float64Array(data.allocations); // your weights
+async function runGrouped(data: RunMsg) {
+    if (!instance) await init();
+    const allocation = new Float64Array(data.allocations);
     const portfolio = 10000;
 
     const onUpdate = (step: number, progress: Float64Array) => {
-        console.log("Progress:", progress);
-        send({ type: "mc_update", step: step, update: [...progress] });
+        send({ type: "sim_update", step, update: [...progress] });
     };
 
     const t0 = performance.now();
-    const result = run_grouped_monte_carlo(
+    const result = run_grouped_monte_carlo(allocation, portfolio, data.n_groups ?? 8, data.seed, onUpdate);
+    send({ type: "sim_result", result, durationMs: performance.now() - t0 });
+}
+
+async function runAveraged(data: RunMsg) {
+    if (!instance) await init();
+    const allocation = new Float64Array(data.allocations);
+    const portfolio = 10000;
+
+    const onUpdate = (step: number, progress: Float64Array) => {
+        send({ type: "sim_update", step, update: [...progress] });
+    };
+
+    const t0 = performance.now();
+    const result = step_averaged_monte_carlo(allocation, portfolio, data.seed, onUpdate);
+    send({ type: "sim_result", result, durationMs: performance.now() - t0 });
+}
+
+async function runPercentile(data: RunMsg) {
+    if (!instance) await init();
+    const allocation = new Float64Array(data.allocations);
+    const portfolio = 10000;
+
+    const onUpdate = (step: number, progress: Float64Array) => {
+        send({ type: "sim_update", step, update: [...progress] });
+    };
+
+    const t0 = performance.now();
+    const result = run_percentile_monte_carlo(allocation, portfolio, data.seed, onUpdate);
+    send({ type: "sim_result", result, durationMs: performance.now() - t0 });
+}
+
+async function runCombined(data: RunMsg) {
+    if (!instance) await init();
+    const allocation = new Float64Array(data.allocations);
+    const portfolio = 10000;
+
+    const onUpdate = (step: number, update: CombinedUpdate) => {
+        send({ type: "combined_update", step, update });
+    };
+
+    const t0 = performance.now();
+    const result = run_combined_monte_carlo(
         allocation,
         portfolio,
         data.n_groups ?? 8,
         data.seed,
         onUpdate,
     );
-    const durationMs = performance.now() - t0;
-    console.log("Result", result);
-
-    send({ type: "mc_result", result, durationMs });
-}
-
-async function runAveragedMC(data: RunMCMsg) {
-    if (!instance) {
-        await init();
-    }
-    const allocation = new Float64Array(data.allocations); // your weights
-    const portfolio = 10000;
-
-    const onUpdate = (step: number, progress: Float64Array) => {
-        console.log("Progress:", progress);
-        send({ type: "mc_update", step: step, update: [...progress] });
-    };
-
-    const t0 = performance.now();
-    const result = step_averaged_monte_carlo(
-        allocation,
-        portfolio,
-        data.seed,
-        onUpdate,
-    );
-    const durationMs = performance.now() - t0;
-    console.log("Result", result);
-
-    send({ type: "mc_result", result, durationMs });
-}
-
-async function runPercentileMC(data: RunMCMsg) {
-    if (!instance) {
-        await init();
-    }
-    const allocation = new Float64Array(data.allocations);
-    const portfolio = 10000;
-
-    const onUpdate = (step: number, progress: Float64Array) => {
-        send({ type: "mc_update", step: step, update: [...progress] });
-    };
-
-    const t0 = performance.now();
-    const result = run_percentile_monte_carlo(
-        allocation,
-        portfolio,
-        data.seed,
-        onUpdate,
-    );
-    const durationMs = performance.now() - t0;
-
-    send({ type: "mc_result", result, durationMs });
+    send({ type: "sim_result", result, durationMs: performance.now() - t0 });
 }
 
 self.onmessage = async ({ data }: MessageEvent<InboundMsg>) => {
@@ -161,14 +164,17 @@ self.onmessage = async ({ data }: MessageEvent<InboundMsg>) => {
             send({ type: "result", result: "pong" });
             break;
 
-        case "run_averaged_mc":
-            runAveragedMC(data);
+        case "run_averaged":
+            runAveraged(data);
             break;
-        case "run_grouped_mc":
-            runGroupedMC(data);
+        case "run_grouped":
+            runGrouped(data);
             break;
-        case "run_percentile_mc":
-            runPercentileMC(data);
+        case "run_percentile":
+            runPercentile(data);
+            break;
+        case "run_combined":
+            runCombined(data);
             break;
     }
 };

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { initWasm } from "./init-wasm";
-import type { OutboundMsg, RunMCMsg } from "./workers/mc_worker";
+import type { OutboundMsg, RunMsg } from "./workers/mc_worker";
 import { LineChart, PercentileChart, type Point } from "./sim/LineChart";
 import { AssetAllocations } from "./AssetAllocations";
 
@@ -39,34 +39,33 @@ function useChartAnimation(n_series: number) {
         setRenderKey(0);
     }
 
-    function startAnimation() {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        revealedRef.current = 0;
-        const total = dataRef.current[0]?.length ?? 0;
-        intervalRef.current = setInterval(() => {
-            revealedRef.current += 1;
-            setRenderKey(revealedRef.current);
-            if (revealedRef.current >= total) {
-                clearInterval(intervalRef.current!);
-                intervalRef.current = null;
-            }
-        }, 4);
+    function advance(steps = 1) {
+        const len = dataRef.current[0]?.length ?? 0;
+        if (revealedRef.current >= len) return;
+        revealedRef.current = Math.min(revealedRef.current + steps, len);
+        setRenderKey(revealedRef.current);
+    }
+
+    function isAtEnd() {
+        return revealedRef.current >= (dataRef.current[0]?.length ?? 0);
     }
 
     const series = dataRef.current.map((s) => s.slice(0, renderKey));
-
-    return { dataRef, renderKey, reset, startAnimation, series };
+    return {
+        dataRef,
+        renderKey,
+        reset,
+        advance,
+        isAtEnd,
+        series,
+    };
 }
 
 export function index() {
     const [isWasmReady, setIsWasmReady] = useState(false);
     const [allocations, setAllocations] = useState(DEFAULT_ALLOCS);
-    const [avgWorker, setAvgWorker] = useState<Worker | null>(null);
-    const [grpWorker, setGrpWorker] = useState<Worker | null>(null);
-    const [pctWorker, setPctWorker] = useState<Worker | null>(null);
-    const [avgDuration, setAvgDuration] = useState<number | null>(null);
-    const [grpDuration, setGrpDuration] = useState<number | null>(null);
-    const [pctDuration, setPctDuration] = useState<number | null>(null);
+    const [simWorker, setSimWorker] = useState<Worker | null>(null);
+    const [simDuration, setSimDuration] = useState<number | null>(null);
     const [seed, setSeed] = useState(() =>
         Math.floor(Math.random() * 0x100000000),
     );
@@ -75,7 +74,7 @@ export function index() {
     const grp = useChartAnimation(N_GROUPS);
     const pct = useChartAnimation(3); // p10, p50, p90
 
-    const isRunning = avgWorker !== null || grpWorker !== null || pctWorker !== null;
+    const isRunning = simWorker !== null;
 
     useEffect(() => {
         initWasm().then((result) => setIsWasmReady(result.ok));
@@ -83,180 +82,183 @@ export function index() {
 
     useEffect(
         () => () => {
-            avgWorker?.terminate();
+            simWorker?.terminate();
         },
-        [avgWorker],
-    );
-    useEffect(
-        () => () => {
-            grpWorker?.terminate();
-        },
-        [grpWorker],
-    );
-    useEffect(
-        () => () => {
-            pctWorker?.terminate();
-        },
-        [pctWorker],
+        [simWorker],
     );
 
-    function spawnWorker(
-        msg: RunMCMsg,
-        chart: ReturnType<typeof useChartAnimation>,
-        setWorker: (w: Worker | null) => void,
-        setDuration: (ms: number) => void,
-    ) {
-        chart.reset();
+    function runSimulation() {
+        if (isRunning) return;
+        [avg, grp, pct].forEach((c) => c.reset());
+
         const w = new Worker(
             new URL("./workers/mc_worker.ts", import.meta.url),
             { type: "module" },
         );
+
+        let simDone = false;
+
+        const liveInterval = setInterval(() => {
+            [avg, grp, pct].forEach((c) => c.advance(50));
+            if (simDone && [avg, grp, pct].every((c) => c.isAtEnd())) {
+                clearInterval(liveInterval);
+            }
+        }, 50);
+
         w.onmessage = (event: MessageEvent<OutboundMsg>) => {
-            if (event.data.type === "mc_update") {
+            if (event.data.type === "combined_update") {
                 const { step, update } = event.data;
-                update.forEach((value, i) => {
-                    chart.dataRef.current[i]?.push({ step, value });
-                });
+                Array.from(update.avg).forEach((value, i) =>
+                    avg.dataRef.current[i]?.push({ step, value }),
+                );
+                Array.from(update.groups).forEach((value, i) =>
+                    grp.dataRef.current[i]?.push({ step, value }),
+                );
+                Array.from(update.pcts).forEach((value, i) =>
+                    pct.dataRef.current[i]?.push({ step, value }),
+                );
             }
-            if (event.data.type === "mc_result") {
-                setDuration(event.data.durationMs);
+            if (event.data.type === "sim_result") {
+                simDone = true;
+                setSimDuration(event.data.durationMs);
                 w.terminate();
-                setWorker(null);
-                chart.startAnimation();
+                setSimWorker(null);
             }
+        };
+
+        const msg: RunMsg = {
+            type: "run_combined",
+            allocations: normalize(allocations),
+            seed,
+            n_groups: N_GROUPS,
         };
         w.postMessage({ type: "init" });
         w.postMessage(msg);
-        setWorker(w);
-    }
-
-    function runSimulation() {
-        if (isRunning) return;
-        const allocs = normalize(allocations);
-        spawnWorker(
-            { type: "run_averaged_mc", allocations: allocs, seed },
-            avg,
-            setAvgWorker,
-            setAvgDuration,
-        );
-        spawnWorker(
-            {
-                type: "run_grouped_mc",
-                allocations: allocs,
-                seed,
-                n_groups: N_GROUPS,
-            },
-            grp,
-            setGrpWorker,
-            setGrpDuration,
-        );
-        spawnWorker(
-            { type: "run_percentile_mc", allocations: allocs, seed },
-            pct,
-            setPctWorker,
-            setPctDuration,
-        );
+        setSimWorker(w);
     }
 
     return (
-        <div className="p-6 max-w-4xl mx-auto space-y-6">
-            <h2 className="text-xl font-bold">
+        <div className="mx-auto p-6 lg:p-0 h-full">
+            <h2 className="text-xl font-bold mb-6">
                 Monte Carlo Portfolio Simulation
             </h2>
 
-            <AssetAllocations
-                labels={ASSET_LABELS}
-                allocations={allocations}
-                onChange={setAllocations}
-                disabled={isRunning}
-            />
+            <div className="flex flex-col lg:flex-row-reverse lg:items-start gap-6 h-full">
+                {/* Controls sidebar */}
+                <div className="space-y-4 lg:w-72 lg:px-5 lg:shrink-0 mb-8 lg:h-full">
+                    <AssetAllocations
+                        labels={ASSET_LABELS}
+                        allocations={allocations}
+                        onChange={setAllocations}
+                        disabled={isRunning}
+                    />
 
-            <div className="flex items-center gap-2">
-                <span className="text-sm">Seed</span>
-                <input
-                    type="number"
-                    value={seed}
-                    min={0}
-                    max={4294967295}
-                    onChange={(e) => setSeed(Number(e.target.value) >>> 0)}
-                    className="input input-sm w-36"
-                    disabled={isRunning}
-                />
-                <button
-                    onClick={() =>
-                        setSeed(Math.floor(Math.random() * 0x100000000))
-                    }
-                    disabled={isRunning}
-                    className="btn btn-sm btn-ghost"
-                    title="New random seed"
-                >
-                    ↺
-                </button>
-            </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm">Seed</span>
+                        <input
+                            type="number"
+                            value={seed}
+                            min={0}
+                            max={4294967295}
+                            onChange={(e) =>
+                                setSeed(Number(e.target.value) >>> 0)
+                            }
+                            className="input input-sm w-36"
+                            disabled={isRunning}
+                        />
+                        <button
+                            onClick={() =>
+                                setSeed(Math.floor(Math.random() * 0x100000000))
+                            }
+                            disabled={isRunning}
+                            className="btn btn-sm btn-ghost"
+                            title="New random seed"
+                        >
+                            ↺
+                        </button>
+                    </div>
 
-            <div className="flex items-center gap-4">
-                <button
-                    onClick={runSimulation}
-                    disabled={!isWasmReady || isRunning}
-                    className="btn btn-sm btn-primary"
-                >
-                    {isRunning
-                        ? "Running..."
-                        : isWasmReady
-                          ? "Run Simulation"
-                          : "Loading WASM..."}
-                </button>
-                {(avgDuration !== null || grpDuration !== null || pctDuration !== null) && !isRunning && (
-                    <span className="text-xs opacity-50">
-                        {[
-                            avgDuration !== null && `avg ${avgDuration.toFixed(1)} ms`,
-                            grpDuration !== null && `grouped ${grpDuration.toFixed(1)} ms`,
-                            pctDuration !== null && `pct ${pctDuration.toFixed(1)} ms`,
-                        ]
-                            .filter(Boolean)
-                            .join(" · ")}
-                    </span>
-                )}
-            </div>
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={runSimulation}
+                            disabled={!isWasmReady || isRunning}
+                            className="btn btn-sm btn-primary"
+                        >
+                            {isRunning
+                                ? "Running..."
+                                : isWasmReady
+                                  ? "Run Simulation"
+                                  : "Loading WASM..."}
+                        </button>
+                        {simDuration !== null && !isRunning && (
+                            <span className="text-xs opacity-50">
+                                {(simDuration / 1000).toFixed(1)}s
+                            </span>
+                        )}
+                    </div>
+                </div>
 
-            <div>
-                <h3 className="text-sm font-semibold mb-1">
-                    Portfolio Percentile Bands
-                </h3>
-                <p className="text-xs text-base-content/60 mb-2">
-                    Shaded area = P10–P90 range across 1,000 runs · Line = median (P50)
-                </p>
-                <PercentileChart series={pct.series} renderKey={pct.renderKey} />
-            </div>
+                {/* Charts grid */}
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 flex-1 min-w-0 lg:p-6">
+                    <div>
+                        <h3 className="text-sm font-semibold mb-1">
+                            Portfolio Percentile Lines
+                        </h3>
+                        <p className="text-xs text-base-content/60 mb-2">
+                            P10, P50 (median), and P90 across 1,000 runs
+                        </p>
+                        <LineChart
+                            labels={["P10", "P50", "P90"]}
+                            series={pct.series}
+                            renderKey={pct.renderKey}
+                            showLegend
+                        />
+                    </div>
 
-            <div>
-                <h3 className="text-sm font-semibold mb-1">
-                    Portfolio Outcome Groups
-                </h3>
-                <p className="text-xs text-base-content/60 mb-2">
-                    {N_GROUPS} groups of runs averaged
-                </p>
-                <LineChart
-                    labels={[]}
-                    series={grp.series}
-                    renderKey={grp.renderKey}
-                    showLegend={false}
-                />
-            </div>
+                    <div>
+                        <h3 className="text-sm font-semibold mb-1">
+                            Portfolio Percentile Bands
+                        </h3>
+                        <p className="text-xs text-base-content/60 mb-2">
+                            Shaded area = P10–P90 range · Line = median (P50)
+                        </p>
+                        <PercentileChart
+                            series={pct.series}
+                            renderKey={pct.renderKey}
+                        />
+                    </div>
 
-            <div>
-                <h3 className="text-sm font-semibold mb-1">
-                    Average Asset Value per Step
-                </h3>
-                <p className="text-xs text-base-content/60 mb-2">
-                    Mean across all runs per asset (smoothed by averaging — shows drift only)
-                </p>
-                <LineChart
-                    labels={ASSET_LABELS}
-                    series={avg.series}
-                    renderKey={avg.renderKey}
-                    showLegend
-                />
+                    <div>
+                        <h3 className="text-sm font-semibold mb-1">
+                            Portfolio Outcome Groups
+                        </h3>
+                        <p className="text-xs text-base-content/60 mb-2">
+                            {N_GROUPS} groups of runs averaged
+                        </p>
+                        <LineChart
+                            labels={[]}
+                            series={grp.series}
+                            renderKey={grp.renderKey}
+                            showLegend={false}
+                        />
+                    </div>
+
+                    <div>
+                        <h3 className="text-sm font-semibold mb-1">
+                            Average Asset Value per Step
+                        </h3>
+                        <p className="text-xs text-base-content/60 mb-2">
+                            Mean across all runs per asset (smoothed by
+                            averaging — shows drift only)
+                        </p>
+                        <LineChart
+                            labels={ASSET_LABELS}
+                            series={avg.series}
+                            renderKey={avg.renderKey}
+                            showLegend
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     );
