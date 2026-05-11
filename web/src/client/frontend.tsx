@@ -14,17 +14,12 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { rootRoute } from "./layout";
 import { rooms } from "./rooms";
+import { index } from "./index";
 
 const indexRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: "/",
-    component: function Index() {
-        return (
-            <div className="p-2">
-                <h3>Welcome Home!</h3>
-            </div>
-        );
-    },
+    component: index,
 });
 
 const roomsRoute = createRoute({
@@ -44,5 +39,4 @@ const app = (
     </StrictMode>
 );
 
-// https://bun.com/docs/bundler/hot-reloading#import-meta-hot-data
-(import.meta.hot.data.root ??= createRoot(elem)).render(app);
+createRoot(elem).render(app);

@@ -4,8 +4,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "bun --hot src/index.ts",
-        "build": "bun build --sourcemap --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
+        "dev": "bun --hot src/index.ts & bunx --bun vite",
+        "build": "vite build",
         "start": "NODE_ENV=production bun src/index.ts"
     },
     "dependencies": {
@@ -31,10 +31,17 @@
         "zod": "^4.4.3"
     },
     "devDependencies": {
+        "@tailwindcss/vite": "^4.3.0",
         "@types/bun": "latest",
+        "@types/d3": "^7.4.3",
         "@types/react": "^19",
         "@types/react-dom": "^19",
+        "@vitejs/plugin-react-swc": "^4.3.0",
         "bun-plugin-tailwind": "^0.1.2",
-        "daisyui": "^5.5.19"
+        "daisyui": "^5.5.19",
+        "rollup": "^4.60.3",
+        "vite": "^8.0.11",
+        "vite-plugin-top-level-await": "^1.6.0",
+        "vite-plugin-wasm": "^3.6.0"
     }
 }
