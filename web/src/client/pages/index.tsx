@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { initWasm } from "./init-wasm";
-import type { OutboundMsg, RunMsg } from "./workers/mc_worker";
-import { LineChart, PercentileChart, type Point } from "./sim/LineChart";
-import { AssetAllocations } from "./sim/AssetAllocations";
-import { EndReturnsCard, type EndReturns } from "./sim/EndReturnsCard";
+import { initWasm } from "../init-wasm";
+import type { OutboundMsg, RunMsg } from "../workers/mc_worker";
+import { LineChart, PercentileChart, type Point } from "../sim/LineChart";
+import { AssetAllocations } from "../sim/AssetAllocations";
+import { EndReturnsCard, type EndReturns } from "../sim/EndReturnsCard";
 
 const ASSET_LABELS = [
     "Fonds",
@@ -96,7 +96,7 @@ export function index() {
         [avg, grp, pct].forEach((c) => c.reset());
 
         const w = new Worker(
-            new URL("./workers/mc_worker.ts", import.meta.url),
+            new URL("../workers/mc_worker.ts", import.meta.url),
             { type: "module" },
         );
 

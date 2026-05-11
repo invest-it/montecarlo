@@ -12,6 +12,7 @@ export default defineConfig({
         },
     },
     server: {
+        cors: false,
         proxy: {
             // Proxy API calls to Bun
             "/api": "http://localhost:3000",

@@ -2,73 +2,24 @@ import { serve } from "bun";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { swaggerUI } from "@hono/swagger-ui";
 import socket from "./server/socket";
-import roomHandlers from "./server/rooms/room-handlers";
-
-const app = new OpenAPIHono();
+import { roomsAPI } from "./server/rooms/rooms-api";
+import { cors } from "hono/cors";
 
 // --- Schemas ---
 
-const HelloResponse = z
-    .object({ message: z.string(), method: z.string() })
-    .openapi("HelloResponse");
-
-const HelloNameParams = z
-    .object({ name: z.string().openapi({ example: "world" }) })
-    .openapi("HelloNameParams");
-
-const HelloNameResponse = z
-    .object({ message: z.string() })
-    .openapi("HelloNameResponse");
-
 // --- Routes ---
+const _app = new OpenAPIHono();
 
-app.openapi(
-    createRoute({
-        method: "get",
-        path: "/api/hello",
-        responses: {
-            200: {
-                content: { "application/json": { schema: HelloResponse } },
-                description: "Returns a hello message",
-            },
-        },
+_app.use(
+    "/api/*",
+    cors({
+        origin: ["http://localhost:5173", "http://localhost:3000"],
+        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allowHeaders: ["Content-Type", "Authorization"],
     }),
-    (c) => c.json({ message: "Hello, world!", method: "GET" }),
 );
 
-app.openapi(
-    createRoute({
-        method: "put",
-        path: "/api/hello",
-        responses: {
-            200: {
-                content: { "application/json": { schema: HelloResponse } },
-                description: "Returns a hello message",
-            },
-        },
-    }),
-    (c) => c.json({ message: "Hello, world!", method: "PUT" }),
-);
-
-app.openapi(
-    createRoute({
-        method: "get",
-        path: "/api/hello/{name}",
-        request: { params: HelloNameParams },
-        responses: {
-            200: {
-                content: { "application/json": { schema: HelloNameResponse } },
-                description: "Returns a personalized hello message",
-            },
-        },
-    }),
-    (c) => {
-        const { name } = c.req.valid("param");
-        return c.json({ message: `Hello, ${name}!` });
-    },
-);
-
-roomHandlers(app);
+const app = new OpenAPIHono(_app).route("/api/room", roomsAPI);
 
 // --- OpenAPI spec + Swagger UI ---
 
@@ -79,8 +30,9 @@ app.doc("/openapi.json", {
 
 app.get("/ui", swaggerUI({ url: "/openapi.json" }));
 
+export type ApiClient = typeof app;
+
 // --- Server ---
-const nonce = crypto.randomUUID();
 
 const server = serve({
     websocket: socket.ws,

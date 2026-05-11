@@ -5,7 +5,7 @@ import {
     Link,
     useLocation,
 } from "@tanstack/react-router";
-import { ThemeController } from "./common/ThemeController";
+import { ThemeController } from "../common/ThemeController";
 
 type NavAction = {
     label: string;
