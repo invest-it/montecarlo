@@ -1,0 +1,3 @@
+- [ ] clean up the old rust stuff (threading)
+- [ ] implement investit design
+- [ ] implement room support

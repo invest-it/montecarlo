@@ -192,7 +192,7 @@ export function index() {
                         </button>
                         {simDuration !== null && !isRunning && (
                             <span className="text-xs opacity-50">
-                                {(simDuration / 1000).toFixed(1)}s
+                                Took {simDuration.toFixed(0)} ms to run
                             </span>
                         )}
                     </div>
