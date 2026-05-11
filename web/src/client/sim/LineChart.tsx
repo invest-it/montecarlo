@@ -11,6 +11,7 @@ interface Props {
     series: Point[][];
     renderKey: number;
     showLegend?: boolean;
+    colors?: string[];
 }
 
 const H = 320;
@@ -214,6 +215,7 @@ export function LineChart({
     series,
     renderKey,
     showLegend = true,
+    colors: colorOverrides,
 }: Props) {
     const containerRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
@@ -299,6 +301,9 @@ export function LineChart({
                 .text(`€${value.toFixed(0)}`);
         }
 
+        const resolveColor = (i: number) =>
+            colorOverrides?.[i] ?? color(i);
+
         // Lines
         series.forEach((s, i) => {
             if (s.length < 2) return;
@@ -311,7 +316,7 @@ export function LineChart({
             g.append("path")
                 .attr("d", d)
                 .attr("fill", "none")
-                .attr("stroke", color(i))
+                .attr("stroke", resolveColor(i))
                 .attr("stroke-width", 1.5);
         });
 
@@ -329,7 +334,7 @@ export function LineChart({
                     .attr("x2", 16)
                     .attr("y1", 7)
                     .attr("y2", 7)
-                    .attr("stroke", color(i))
+                    .attr("stroke", resolveColor(i))
                     .attr("stroke-width", 2);
                 row.append("text")
                     .attr("x", 20)

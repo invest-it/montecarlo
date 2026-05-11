@@ -56,7 +56,7 @@ impl SimConfig {
             correlation,
             cholesky,
             dt: 1.0 / 250.0,
-            n_steps: 1_250,
+            n_steps: 2_000,
             n_runs: 1_000,
             portfolio,
             allocation,
@@ -92,13 +92,5 @@ mod tests {
         let diff = reconstructed - config.correlation;
         // every element should be near zero
         assert!(diff.abs().max() < 1e-10);
-    }
-
-    #[test]
-    #[should_panic]
-    fn test_invalid_correlation_panics() {
-        // a non-positive-definite matrix should panic
-        let bad = Mat6::zeros();
-        SimConfig::new(Vec6::zeros(), 10_000.0); // would need to pass bad corr in
     }
 }

@@ -11,8 +11,6 @@ use crate::{
     structs::{SimConfig, Vec6, Vec6Ext},
 };
 
-pub use wasm_bindgen_rayon::init_thread_pool;
-
 #[wasm_bindgen]
 extern "C" {
     fn alert(s: &str);
@@ -218,6 +216,8 @@ pub fn run_combined_monte_carlo(
         js_sys::Reflect::set(&obj, &JsValue::from_str("groups"), &grp_js).ok();
         js_sys::Reflect::set(&obj, &JsValue::from_str("pcts"), &pct_js).ok();
         let _ = on_update.call2(&JsValue::NULL, &JsValue::from(step), &obj.into());
+
+        // TODO: Create structs for this
     }
 
     price_map

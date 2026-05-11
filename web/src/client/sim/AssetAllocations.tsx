@@ -54,12 +54,12 @@ export function AssetAllocations({
 
     return (
         <div>
-            <span className="text-lg font-medium mb-2 block">
+            <span className="text-lg font-medium mb-4 block">
                 Asset Allocations
             </span>
             {labels.map((label, i) => (
-                <div key={label} className="flex items-center gap-3 mb-2">
-                    <span className="w-24 text-sm">{label}</span>
+                <div key={label} className="flex items-center mb-2">
+                    <span className="min-w-20 text-sm">{label}</span>
                     <input
                         type="range"
                         min={0}
@@ -68,10 +68,10 @@ export function AssetAllocations({
                         onChange={(e) =>
                             handleChange(i, Number(e.target.value))
                         }
-                        className="flex-1"
+                        className="w-full"
                         disabled={disabled}
                     />
-                    <span className="w-10 text-sm text-right">
+                    <span className="min-w-12 text-sm text-right">
                         {allocations[i]}%
                     </span>
                 </div>

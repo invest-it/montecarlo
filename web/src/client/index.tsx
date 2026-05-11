@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { initWasm } from "./init-wasm";
 import type { OutboundMsg, RunMsg } from "./workers/mc_worker";
 import { LineChart, PercentileChart, type Point } from "./sim/LineChart";
-import { AssetAllocations } from "./AssetAllocations";
+import { AssetAllocations } from "./sim/AssetAllocations";
+import { EndReturnsCard, type EndReturns } from "./sim/EndReturnsCard";
 
 const ASSET_LABELS = [
     "Fonds",
@@ -64,8 +65,10 @@ function useChartAnimation(n_series: number) {
 export function index() {
     const [isWasmReady, setIsWasmReady] = useState(false);
     const [allocations, setAllocations] = useState(DEFAULT_ALLOCS);
+    const [portfolio, setPortfolio] = useState(10000);
     const [simWorker, setSimWorker] = useState<Worker | null>(null);
     const [simDuration, setSimDuration] = useState<number | null>(null);
+    const [endReturns, setEndReturns] = useState<EndReturns | null>(null);
     const [seed, setSeed] = useState(() =>
         Math.floor(Math.random() * 0x100000000),
     );
@@ -89,6 +92,7 @@ export function index() {
 
     function runSimulation() {
         if (isRunning) return;
+        setEndReturns(null);
         [avg, grp, pct].forEach((c) => c.reset());
 
         const w = new Worker(
@@ -121,6 +125,12 @@ export function index() {
             if (event.data.type === "sim_result") {
                 simDone = true;
                 setSimDuration(event.data.durationMs);
+                const lastOf = (s: Point[]) => s[s.length - 1]?.value ?? 0;
+                setEndReturns({
+                    p10: lastOf(pct.dataRef.current[0] ?? []),
+                    p50: lastOf(pct.dataRef.current[1] ?? []),
+                    p90: lastOf(pct.dataRef.current[2] ?? []),
+                });
                 w.terminate();
                 setSimWorker(null);
             }
@@ -131,6 +141,7 @@ export function index() {
             allocations: normalize(allocations),
             seed,
             n_groups: N_GROUPS,
+            portfolio,
         };
         w.postMessage({ type: "init" });
         w.postMessage(msg);
@@ -152,6 +163,25 @@ export function index() {
                         onChange={setAllocations}
                         disabled={isRunning}
                     />
+
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm">Portfolio</span>
+                        <span className="text-sm opacity-60">€</span>
+                        <input
+                            type="number"
+                            value={portfolio}
+                            min={100}
+                            max={100_000_000}
+                            step={1000}
+                            onChange={(e) =>
+                                setPortfolio(
+                                    Math.max(100, Number(e.target.value) | 0),
+                                )
+                            }
+                            className="input input-sm w-36"
+                            disabled={isRunning}
+                        />
+                    </div>
 
                     <div className="flex items-center gap-2">
                         <span className="text-sm">Seed</span>
@@ -178,7 +208,7 @@ export function index() {
                         </button>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 mb-10">
                         <button
                             onClick={runSimulation}
                             disabled={!isWasmReady || isRunning}
@@ -196,6 +226,13 @@ export function index() {
                             </span>
                         )}
                     </div>
+
+                    {endReturns && (
+                        <EndReturnsCard
+                            returns={endReturns}
+                            portfolio={portfolio}
+                        />
+                    )}
                 </div>
 
                 {/* Charts grid */}
@@ -212,6 +249,11 @@ export function index() {
                             series={pct.series}
                             renderKey={pct.renderKey}
                             showLegend
+                            colors={[
+                                "var(--color-error)",
+                                "var(--color-warning)",
+                                "var(--color-success)",
+                            ]}
                         />
                     </div>
 

@@ -23,6 +23,7 @@ export interface RunMsg {
     allocations: number[];
     seed?: number;
     n_groups?: number;
+    portfolio?: number;
 }
 
 export type InboundMsg = InitMsg | PingMsg | RunMsg;
@@ -95,7 +96,7 @@ async function init() {
 async function runGrouped(data: RunMsg) {
     if (!instance) await init();
     const allocation = new Float64Array(data.allocations);
-    const portfolio = 10000;
+    const portfolio = data.portfolio ?? 10000;
 
     const onUpdate = (step: number, progress: Float64Array) => {
         send({ type: "sim_update", step, update: [...progress] });
@@ -109,7 +110,7 @@ async function runGrouped(data: RunMsg) {
 async function runAveraged(data: RunMsg) {
     if (!instance) await init();
     const allocation = new Float64Array(data.allocations);
-    const portfolio = 10000;
+    const portfolio = data.portfolio ?? 10000;
 
     const onUpdate = (step: number, progress: Float64Array) => {
         send({ type: "sim_update", step, update: [...progress] });
@@ -123,7 +124,7 @@ async function runAveraged(data: RunMsg) {
 async function runPercentile(data: RunMsg) {
     if (!instance) await init();
     const allocation = new Float64Array(data.allocations);
-    const portfolio = 10000;
+    const portfolio = data.portfolio ?? 10000;
 
     const onUpdate = (step: number, progress: Float64Array) => {
         send({ type: "sim_update", step, update: [...progress] });
@@ -137,7 +138,7 @@ async function runPercentile(data: RunMsg) {
 async function runCombined(data: RunMsg) {
     if (!instance) await init();
     const allocation = new Float64Array(data.allocations);
-    const portfolio = 10000;
+    const portfolio = data.portfolio ?? 10000;
 
     const onUpdate = (step: number, update: CombinedUpdate) => {
         send({ type: "combined_update", step, update });
