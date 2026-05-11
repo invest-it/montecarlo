@@ -156,7 +156,38 @@ export function index() {
 
             <div className="flex flex-col lg:flex-row-reverse lg:items-start gap-6 h-full">
                 {/* Controls sidebar */}
+
                 <div className="space-y-4 lg:w-72 lg:px-5 lg:shrink-0 mb-8 lg:h-full">
+                    <span className="text-lg font-medium mb-4 block">
+                        Asset Allocations
+                    </span>
+
+                    <div className="flex justify-between items-center gap-2">
+                        <span className="text-sm">Portfolio </span>
+
+                        <label className="input input-sm w-32">
+                            <input
+                                type="number"
+                                value={portfolio}
+                                min={100}
+                                max={100_000_000}
+                                step={1000}
+                                onChange={(e) =>
+                                    setPortfolio(
+                                        Math.max(
+                                            100,
+                                            Number(e.target.value) | 0,
+                                        ),
+                                    )
+                                }
+                                className="grow"
+                                disabled={isRunning}
+                            />
+                            <span className="text-sm opacity-60 text-end">
+                                €
+                            </span>
+                        </label>
+                    </div>
                     <AssetAllocations
                         labels={ASSET_LABELS}
                         allocations={allocations}
@@ -164,48 +195,33 @@ export function index() {
                         disabled={isRunning}
                     />
 
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm">Portfolio</span>
-                        <span className="text-sm opacity-60">€</span>
-                        <input
-                            type="number"
-                            value={portfolio}
-                            min={100}
-                            max={100_000_000}
-                            step={1000}
-                            onChange={(e) =>
-                                setPortfolio(
-                                    Math.max(100, Number(e.target.value) | 0),
-                                )
-                            }
-                            className="input input-sm w-36"
-                            disabled={isRunning}
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-2">
+                    <div className="flex justify-between items-center gap-2">
                         <span className="text-sm">Seed</span>
-                        <input
-                            type="number"
-                            value={seed}
-                            min={0}
-                            max={4294967295}
-                            onChange={(e) =>
-                                setSeed(Number(e.target.value) >>> 0)
-                            }
-                            className="input input-sm w-36"
-                            disabled={isRunning}
-                        />
-                        <button
-                            onClick={() =>
-                                setSeed(Math.floor(Math.random() * 0x100000000))
-                            }
-                            disabled={isRunning}
-                            className="btn btn-sm btn-ghost"
-                            title="New random seed"
-                        >
-                            ↺
-                        </button>
+                        <div>
+                            <input
+                                type="number"
+                                value={seed}
+                                min={0}
+                                max={4294967295}
+                                onChange={(e) =>
+                                    setSeed(Number(e.target.value) >>> 0)
+                                }
+                                className="input input-sm w-36 join-item"
+                                disabled={isRunning}
+                            />
+                            <button
+                                onClick={() =>
+                                    setSeed(
+                                        Math.floor(Math.random() * 0x100000000),
+                                    )
+                                }
+                                disabled={isRunning}
+                                className="btn btn-sm btn-secondary join-item"
+                                title="New random seed"
+                            >
+                                ↺
+                            </button>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-4 mb-10">

@@ -54,9 +54,6 @@ export function AssetAllocations({
 
     return (
         <div>
-            <span className="text-lg font-medium mb-4 block">
-                Asset Allocations
-            </span>
             {labels.map((label, i) => (
                 <div key={label} className="flex items-center mb-2">
                     <span className="min-w-20 text-sm">{label}</span>
