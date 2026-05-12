@@ -1,9 +1,8 @@
-use crate::structs::Asset;
-use crate::structs::{AssetParams, Mat6, SimConfig, Vec6};
-
 use nalgebra::Cholesky;
 
-impl SimConfig {
+use crate::v1::structs::{Asset, AssetParams, Mat6, SimConfigWithAssumptions, Vec6};
+
+impl SimConfigWithAssumptions {
     pub fn new(allocation: Vec6, portfolio: f64) -> Self {
         let assets = [
             AssetParams {
@@ -51,7 +50,7 @@ impl SimConfig {
         // Derive prices vector directly from asset definitions
         let prices = Vec6::from_fn(|i, _| allocation[i] * portfolio);
 
-        SimConfig {
+        SimConfigWithAssumptions {
             assets,
             correlation,
             cholesky,
@@ -65,7 +64,7 @@ impl SimConfig {
     }
 }
 
-impl Default for SimConfig {
+impl Default for SimConfigWithAssumptions {
     fn default() -> Self {
         let mut alloc = Vec6::zeros();
         alloc[0] = 1.0; // 100% Fonds, matching the spreadsheet default
@@ -79,14 +78,14 @@ mod tests {
 
     #[test]
     fn test_allocation_sums_to_one() {
-        let config = SimConfig::default();
+        let config = SimConfigWithAssumptions::default();
         let sum: f64 = config.allocation.iter().sum();
         assert!((sum - 1.0).abs() < 1e-10);
     }
 
     #[test]
     fn test_cholesky_reconstructs_correlation() {
-        let config = SimConfig::default();
+        let config = SimConfigWithAssumptions::default();
         let l = config.cholesky;
         let reconstructed = l * l.transpose();
         let diff = reconstructed - config.correlation;

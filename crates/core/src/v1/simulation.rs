@@ -3,17 +3,22 @@ use std::ops::Range;
 use rand::prelude::*;
 use rand_distr::StandardNormal;
 
-use crate::structs::{SimConfig, SimResults, StepUpdate, Vec6, N_ASSETS};
+use crate::{
+    structs::{SimResults, StepUpdate},
+    v1::structs::Vec6,
+};
+
+use super::structs::{SimConfigWithAssumptions, N_ASSETS};
 
 //
-pub fn portfolio_value(config: &SimConfig, prices: &Vec6) -> f64 {
+pub fn portfolio_value(prices: &Vec6) -> f64 {
     (0..N_ASSETS).map(|i| prices[i]).sum()
 }
 
 // TODO: SeedableRng for multiplayer?
 
 pub fn run_simulation_range<R: Rng>(
-    config: &SimConfig,
+    config: &SimConfigWithAssumptions,
     range: Range<usize>,
     rng: &mut R,
     prices: &mut Vec6,
@@ -35,14 +40,18 @@ pub fn run_simulation_range<R: Rng>(
         }
 
         if let Some(tx) = tx {
-            let prices = prices.clone();
-            tx.send(StepUpdate { run, step, prices }).ok();
+            tx.send(StepUpdate {
+                run,
+                step,
+                prices: prices.as_slice().to_vec(),
+            })
+            .ok();
         }
     }
 }
 
 pub fn run_simulation<R: Rng>(
-    config: &SimConfig,
+    config: &SimConfigWithAssumptions,
     rng: &mut R,
     run: usize,
     tx: Option<&std::sync::mpsc::SyncSender<StepUpdate>>,
@@ -51,10 +60,10 @@ pub fn run_simulation<R: Rng>(
 
     run_simulation_range(config, 0..config.n_steps, rng, &mut prices, run, tx);
 
-    return portfolio_value(config, &prices);
+    return portfolio_value(&prices);
 }
 
-pub fn run_all_seeded(config: &SimConfig, seed: u64) -> SimResults {
+pub fn run_all_seeded(config: &SimConfigWithAssumptions, seed: u64) -> SimResults {
     let mut rng = StdRng::seed_from_u64(seed);
     let results: SimResults = (0..config.n_runs)
         .map(|_| run_simulation(config, &mut rng, 0, None))

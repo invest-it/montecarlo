@@ -1,10 +1,10 @@
 import { error, value } from "@/result";
 import { initWasm } from "../init-wasm";
 import {
-    step_averaged_monte_carlo,
-    run_grouped_monte_carlo,
-    run_percentile_monte_carlo,
-    run_combined_monte_carlo,
+    step_averaged_monte_carlo_v1,
+    run_grouped_monte_carlo_v1,
+    run_percentile_monte_carlo_v1,
+    run_combined_monte_carlo_v1,
     type InitOutput,
 } from "@/wasm/core";
 
@@ -103,7 +103,13 @@ async function runGrouped(data: RunMsg) {
     };
 
     const t0 = performance.now();
-    const result = run_grouped_monte_carlo(allocation, portfolio, data.n_groups ?? 8, data.seed, onUpdate);
+    const result = run_grouped_monte_carlo_v1(
+        allocation,
+        portfolio,
+        data.n_groups ?? 8,
+        data.seed,
+        onUpdate,
+    );
     send({ type: "sim_result", result, durationMs: performance.now() - t0 });
 }
 
@@ -117,7 +123,12 @@ async function runAveraged(data: RunMsg) {
     };
 
     const t0 = performance.now();
-    const result = step_averaged_monte_carlo(allocation, portfolio, data.seed, onUpdate);
+    const result = step_averaged_monte_carlo_v1(
+        allocation,
+        portfolio,
+        data.seed,
+        onUpdate,
+    );
     send({ type: "sim_result", result, durationMs: performance.now() - t0 });
 }
 
@@ -131,7 +142,12 @@ async function runPercentile(data: RunMsg) {
     };
 
     const t0 = performance.now();
-    const result = run_percentile_monte_carlo(allocation, portfolio, data.seed, onUpdate);
+    const result = run_percentile_monte_carlo_v1(
+        allocation,
+        portfolio,
+        data.seed,
+        onUpdate,
+    );
     send({ type: "sim_result", result, durationMs: performance.now() - t0 });
 }
 
@@ -145,7 +161,7 @@ async function runCombined(data: RunMsg) {
     };
 
     const t0 = performance.now();
-    const result = run_combined_monte_carlo(
+    const result = run_combined_monte_carlo_v1(
         allocation,
         portfolio,
         data.n_groups ?? 8,
