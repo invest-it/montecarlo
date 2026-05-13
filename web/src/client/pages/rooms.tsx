@@ -14,13 +14,13 @@ export function rooms() {
     }
 
     return (
-        <div>
+        <div className="mx-auto w-full max-w-5xl">
             <div className="flex w-full flex-col lg:flex-row">
-                <div className="card bg-base-300 rounded-box grid py-5 grow place-items-center">
+                <div className="card bg-base-100 shadow-custom grid py-5 grow place-items-center">
                     <JoinRoomForm />
                 </div>
                 <div className="divider lg:divider-horizontal">OR</div>
-                <div className="card bg-base-300 rounded-box grid py-5 grow place-items-center">
+                <div className="card bg-base-100 shadow-custom grid py-5 grow place-items-center">
                     <CreateRoomForm />
                 </div>
             </div>

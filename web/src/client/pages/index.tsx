@@ -149,15 +149,14 @@ export function index() {
     }
 
     return (
-        <div className="mx-auto p-6 lg:p-0 h-full">
-            <h2 className="text-xl font-bold mb-6">
+        <div className="mx-auto w-full max-w-7xl">
+            <h2 className="text-4xl font-bold leading-snug mb-8">
                 Monte Carlo Portfolio Simulation
             </h2>
 
             <div className="flex flex-col lg:flex-row-reverse lg:items-start gap-6 h-full">
-                {/* Controls sidebar */}
-
-                <div className="space-y-4 lg:w-72 lg:px-5 lg:shrink-0 mb-8 lg:h-full">
+                <div className="card bg-base-100 shadow-custom lg:w-80 lg:shrink-0 mb-8 lg:h-full">
+                    <div className="card-body space-y-4">
                     <span className="text-lg font-medium mb-4 block">
                         Asset Allocations
                     </span>
@@ -249,11 +248,12 @@ export function index() {
                             portfolio={portfolio}
                         />
                     )}
+                    </div>
                 </div>
 
-                {/* Charts grid */}
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 flex-1 min-w-0 lg:p-6">
-                    <div>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 flex-1 min-w-0">
+                    <div className="card bg-base-100 shadow-custom">
+                        <div className="card-body">
                         <h3 className="text-sm font-semibold mb-1">
                             Portfolio Percentile Lines
                         </h3>
@@ -271,9 +271,11 @@ export function index() {
                                 "var(--color-success)",
                             ]}
                         />
+                        </div>
                     </div>
 
-                    <div>
+                    <div className="card bg-base-100 shadow-custom">
+                        <div className="card-body">
                         <h3 className="text-sm font-semibold mb-1">
                             Portfolio Percentile Bands
                         </h3>
@@ -284,9 +286,11 @@ export function index() {
                             series={pct.series}
                             renderKey={pct.renderKey}
                         />
+                        </div>
                     </div>
 
-                    <div>
+                    <div className="card bg-base-100 shadow-custom">
+                        <div className="card-body">
                         <h3 className="text-sm font-semibold mb-1">
                             Portfolio Outcome Groups
                         </h3>
@@ -299,9 +303,11 @@ export function index() {
                             renderKey={grp.renderKey}
                             showLegend={false}
                         />
+                        </div>
                     </div>
 
-                    <div>
+                    <div className="card bg-base-100 shadow-custom">
+                        <div className="card-body">
                         <h3 className="text-sm font-semibold mb-1">
                             Average Asset Value per Step
                         </h3>
@@ -315,6 +321,7 @@ export function index() {
                             renderKey={avg.renderKey}
                             showLegend
                         />
+                        </div>
                     </div>
                 </div>
             </div>

@@ -40,10 +40,10 @@ export function room() {
     }
 
     return (
-        <div className="flex w-full flex-col lg:flex-row">
+        <div className="mx-auto flex w-full max-w-5xl flex-col lg:flex-row">
             <div className="p-6 w-full max-w-md">
                 {room && !roomConfig && (
-                    <div className="card bg-base-300 rounded-box p-6">
+                    <div className="card bg-base-100 shadow-custom p-6">
                         <h2 className="text-xl mb-4">Raum {room.name ?? id}</h2>
                         <p className="text-sm text-base-content/60 mb-4">
                             Passwort eingeben um den Raum-Code zu sehen
@@ -102,7 +102,7 @@ export function room() {
                 )}
 
                 {roomConfig && (
-                    <div className="card bg-base-300 rounded-box p-6">
+                    <div className="card bg-base-100 shadow-custom p-6">
                         <h2 className="text-xl mb-4">{roomConfig.name}</h2>
                         <div className="space-y-2 text-sm">
                             <div>

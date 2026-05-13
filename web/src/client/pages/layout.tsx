@@ -5,7 +5,6 @@ import {
     Link,
     useLocation,
 } from "@tanstack/react-router";
-import { ThemeController } from "../common/ThemeController";
 
 type NavAction = {
     label: string;
@@ -28,7 +27,7 @@ function Layout({ children, sidebar, footer }: LayoutProps) {
     const action = navActions[pathname];
 
     return (
-        <div className="drawer lg:drawer-open min-h-screen">
+        <div className="drawer lg:drawer-open min-h-screen bg-base-200">
             <input
                 id="sidebar-toggle"
                 type="checkbox"
@@ -36,8 +35,10 @@ function Layout({ children, sidebar, footer }: LayoutProps) {
             />
 
             <div className="drawer-content flex flex-col">
-                {/* Navbar */}
-                <div className="navbar bg-base-100 border-b border-base-200 sticky top-0 z-10">
+                <nav
+                    className="navbar bg-base-100 shadow-custom h-[87px] px-5 sm:px-10 flex justify-between sticky top-0 z-10"
+                    aria-label="Main navigation"
+                >
                     {sidebar && (
                         <label
                             htmlFor="sidebar-toggle"
@@ -59,35 +60,40 @@ function Layout({ children, sidebar, footer }: LayoutProps) {
                         </label>
                     )}
                     <div className="navbar-start">
-                        <span className="text-xl font-bold">Monte Carlo</span>
+                        <Link to="/" className="flex items-center">
+                            <img
+                                src="/assets/investit-logo.svg"
+                                alt="Invest It"
+                                className="w-[166px]"
+                            />
+                        </Link>
                     </div>
                     <div className="navbar-end">
                         <div className="flex flex-row items-center gap-3">
-                            <ThemeController />
                             {action && (
                                 <Link
                                     to={action.to}
-                                    className="btn btn-sm btn-primary"
+                                    className="btn btn-sm bg-primary text-white"
                                 >
                                     {action.label}
                                 </Link>
                             )}
                         </div>
                     </div>
-                </div>
+                </nav>
 
-                {/* Main content */}
-                <main className="flex-1 p-6 bg-base-200">{children}</main>
+                <main className="flex-1 bg-base-200 px-4 py-8 sm:px-6 lg:px-10">
+                    {children}
+                </main>
 
-                {/* Footer */}
                 {footer && (
                     <footer className="footer footer-center p-4 bg-base-100 border-t border-base-200 text-base-content">
                         {footer}
                     </footer>
                 )}
+                {!footer && <InvestItFooter />}
             </div>
 
-            {/* Sidebar */}
             {sidebar && (
                 <div className="drawer-side z-20">
                     <label
@@ -108,6 +114,43 @@ function RootComponent() {
         <Layout>
             <Outlet />
         </Layout>
+    );
+}
+
+function InvestItFooter() {
+    return (
+        <footer
+            className="bg-base-100 text-base-content border-t border-t-primary pb-5 pt-10"
+            aria-label="Site footer"
+        >
+            <div className="footer sm:footer-horizontal px-10">
+                <aside>
+                    <Link to="/" aria-label="Go to homepage">
+                        <img
+                            src="/assets/investit-footer-logo.svg"
+                            alt="Invest It"
+                            className="w-[78px]"
+                        />
+                    </Link>
+                    <address className="not-italic mt-2">
+                        <strong>Invest it&nbsp;e.V.</strong>
+                        <br />
+                        Finanzielle Bildung - unabhängig. kostenlos. fundiert.
+                        <br />
+                        Alsterchaussee 26
+                        <br />
+                        20149 Hamburg
+                        <br />
+                        VR 24456
+                    </address>
+                </aside>
+            </div>
+            <div className="border-t border-base-300 mt-6 pt-4">
+                <p className="mx-auto font-light text-xs text-center">
+                    © 2026 Invest it e.V. | Alle Rechte vorbehalten.
+                </p>
+            </div>
+        </footer>
     );
 }
 
