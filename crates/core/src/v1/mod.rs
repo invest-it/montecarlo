@@ -22,7 +22,7 @@ pub fn run_percentile_monte_carlo(
     let mut rng: StdRng = seed
         .map(|s| StdRng::seed_from_u64(s as u64))
         .unwrap_or_else(|| rand::make_rng());
-    let mut price_map: Vec<Vec6> = vec![config.prices; config.n_runs];
+    let mut price_map: Vec<Vec6> = vec![config.portfolio; config.n_runs];
 
     for step in 0..config.n_steps {
         for run in 0..config.n_runs {
@@ -59,7 +59,7 @@ pub fn step_averaged_monte_carlo(
     let mut rng: StdRng = seed
         .map(|s| StdRng::seed_from_u64(s as u64))
         .unwrap_or_else(|| rand::make_rng());
-    let mut price_map: Vec<Vec6> = vec![config.prices; config.n_runs];
+    let mut price_map: Vec<Vec6> = vec![config.portfolio; config.n_runs];
 
     for step in 0..config.n_steps {
         for run in 0..config.n_runs {
@@ -92,7 +92,7 @@ pub fn run_grouped_monte_carlo(
     let mut rng: StdRng = seed
         .map(|s| StdRng::seed_from_u64(s as u64))
         .unwrap_or_else(|| rand::make_rng());
-    let mut price_map: Vec<Vec6> = vec![config.prices; config.n_runs];
+    let mut price_map: Vec<Vec6> = vec![config.portfolio; config.n_runs];
 
     let runs_per_group = (config.n_runs + n_groups - 1) / n_groups;
 
@@ -138,7 +138,7 @@ pub fn run_combined_monte_carlo(
     let mut rng: StdRng = seed
         .map(|s| StdRng::seed_from_u64(s as u64))
         .unwrap_or_else(|| rand::make_rng());
-    let mut price_map: Vec<Vec6> = vec![config.prices; config.n_runs];
+    let mut price_map: Vec<Vec6> = vec![config.portfolio; config.n_runs];
 
     let runs_per_group = (config.n_runs + n_groups - 1) / n_groups;
 

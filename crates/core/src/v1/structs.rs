@@ -36,9 +36,9 @@ pub struct SimConfigWithAssumptions {
     pub n_runs: usize, // TODO: limit
 
     // --- user inputs (variable) ---
-    pub portfolio: f64,
+    pub investment: f64,
     pub allocation: Vec6, // was Allocation([f64; 6]), weights must sum to 1.0
-    pub prices: Vec6,     // starting price per asset, all 100.0 here
+    pub portfolio: Vec6,  // starting price per asset, all 100.0 here
 }
 
 pub trait Vec6Ext {

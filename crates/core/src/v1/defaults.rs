@@ -3,7 +3,7 @@ use nalgebra::Cholesky;
 use crate::v1::structs::{Asset, AssetParams, Mat6, SimConfigWithAssumptions, Vec6};
 
 impl SimConfigWithAssumptions {
-    pub fn new(allocation: Vec6, portfolio: f64) -> Self {
+    pub fn new(allocation: Vec6, investment: f64) -> Self {
         let assets = [
             AssetParams {
                 name: Asset::Fonds,
@@ -48,7 +48,7 @@ impl SimConfigWithAssumptions {
             .l();
 
         // Derive prices vector directly from asset definitions
-        let prices = Vec6::from_fn(|i, _| allocation[i] * portfolio);
+        let portfolio = Vec6::from_fn(|i, _| allocation[i] * investment);
 
         SimConfigWithAssumptions {
             assets,
@@ -57,9 +57,9 @@ impl SimConfigWithAssumptions {
             dt: 1.0 / 250.0,
             n_steps: 2_000,
             n_runs: 1_000,
-            portfolio,
+            investment,
             allocation,
-            prices,
+            portfolio,
         }
     }
 }

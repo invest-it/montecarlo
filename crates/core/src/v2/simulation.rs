@@ -8,7 +8,7 @@ use super::structs::{SimAssumptions, SimConfig};
 use crate::structs::{SimResults, StepUpdate};
 
 //
-pub fn portfolio_value(prices: &DVector<f64>) -> f64 {
+pub fn evaluate_portfolio(prices: &DVector<f64>) -> f64 {
     prices.sum()
 }
 
@@ -61,7 +61,7 @@ pub fn run_simulation<R: Rng>(
     run: usize,
     tx: Option<&std::sync::mpsc::SyncSender<StepUpdate>>,
 ) -> f64 {
-    let mut prices = config.prices.clone();
+    let mut prices = config.portfolio();
     let assumptions = SimAssumptions::from(config.selection.clone());
 
     run_simulation_range(
@@ -74,7 +74,7 @@ pub fn run_simulation<R: Rng>(
         tx,
     );
 
-    return portfolio_value(&prices);
+    return evaluate_portfolio(&prices);
 }
 
 pub fn run_all_seeded(config: &SimConfig, seed: u64) -> SimResults {
