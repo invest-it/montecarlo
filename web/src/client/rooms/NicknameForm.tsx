@@ -1,4 +1,5 @@
 import { useForm } from "@tanstack/react-form";
+import { useTranslation } from "react-i18next";
 import { v4 as uuidv4 } from "uuid";
 import { saveRoomUser, type RoomUser } from "../common/RoomUser";
 
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export function NicknameForm({ onCreated }: Props) {
+    const { t } = useTranslation();
     const form = useForm({
         defaultValues: { nickname: "" },
         onSubmit: ({ value }) => {
@@ -21,7 +23,7 @@ export function NicknameForm({ onCreated }: Props) {
 
     return (
         <div className="card bg-base-100 shadow-custom p-8 max-w-sm w-full mx-auto">
-            <h2 className="text-xl mb-4">Wähle einen Nutzernamen</h2>
+            <h2 className="text-xl mb-4">{t("rooms.nickname.title")}</h2>
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
@@ -34,13 +36,13 @@ export function NicknameForm({ onCreated }: Props) {
                     validators={{
                         onChange: ({ value }) =>
                             value.trim().length === 0
-                                ? "Pflichtfeld"
+                                ? t("rooms.nickname.required")
                                 : undefined,
                     }}
                     children={(field) => (
                         <fieldset className="fieldset">
                             <legend className="fieldset-legend">
-                                Nickname
+                                {t("rooms.nickname.label")}
                             </legend>
                             <input
                                 type="text"
@@ -52,7 +54,7 @@ export function NicknameForm({ onCreated }: Props) {
                                 onChange={(e) =>
                                     field.handleChange(e.target.value)
                                 }
-                                placeholder="z.B. MaxMustermann"
+                                placeholder={t("rooms.nickname.placeholder")}
                                 maxLength={32}
                                 autoFocus
                             />
@@ -72,7 +74,7 @@ export function NicknameForm({ onCreated }: Props) {
                             type="submit"
                             disabled={!canSubmit}
                         >
-                            {isSubmitting ? "..." : "Weiter"}
+                            {isSubmitting ? "..." : t("rooms.nickname.submit")}
                         </button>
                     )}
                 />

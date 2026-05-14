@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CreateRoomForm } from "../rooms/CreateRoomForm";
 import { JoinRoomForm } from "../rooms/JoinRoomForm";
 import { NicknameForm } from "../rooms/NicknameForm";
@@ -13,13 +14,15 @@ export function rooms() {
         return <NicknameForm onCreated={setRoomUser} />;
     }
 
+    const { t } = useTranslation();
+
     return (
         <div className="mx-auto w-full max-w-5xl">
             <div className="flex w-full flex-col lg:flex-row">
                 <div className="card bg-base-100 shadow-custom grid py-5 grow place-items-center">
                     <JoinRoomForm />
                 </div>
-                <div className="divider lg:divider-horizontal">OR</div>
+                <div className="divider lg:divider-horizontal">{t("rooms.or")}</div>
                 <div className="card bg-base-100 shadow-custom grid py-5 grow place-items-center">
                     <CreateRoomForm />
                 </div>

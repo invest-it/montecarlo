@@ -1,0 +1,113 @@
+{
+    "nav": {
+        "joinRoom": "Raum beitreten",
+        "goHome": "Zur Startseite",
+        "mainNavigation": "Hauptnavigation",
+        "goToHomepage": "Zur Startseite",
+        "siteFooter": "Seiten-Footer"
+    },
+    "footer": {
+        "tagline": "Finanzielle Bildung - unabhängig. kostenlos. fundiert.",
+        "copyright": "© 2026 Invest it e.V. | Alle Rechte vorbehalten."
+    },
+    "rooms": {
+        "or": "ODER",
+        "join": {
+            "title": "Raum beitreten",
+            "roomId": "Raum-ID",
+            "placeholder": "Hier eingeben",
+            "optional": "Optional",
+            "submit": "Beitreten"
+        },
+        "create": {
+            "title": "Neuen Raum erstellen",
+            "password": "Passwort",
+            "confirmPassword": "Passwort bestätigen",
+            "roomName": "Raum-Name?",
+            "placeholder": "Hier eingeben",
+            "optional": "Optional",
+            "submit": "Erstellen"
+        },
+        "nickname": {
+            "title": "Wähle einen Nutzernamen",
+            "label": "Nickname",
+            "placeholder": "z.B. MaxMustermann",
+            "required": "Pflichtfeld",
+            "submit": "Weiter"
+        }
+    },
+    "room": {
+        "title": "Raum {{name}}",
+        "enterPasswordHint": "Passwort eingeben um den Raum-Code zu sehen",
+        "password": "Passwort",
+        "confirm": "Bestätigen",
+        "roomCode": "Raum-Code",
+        "owner": "Eigentümer",
+        "wrongPassword": "Falsches Passwort",
+        "notFound": "Raum nicht gefunden"
+    },
+    "simulation": {
+        "title": "Monte-Carlo-Portfoliosimulation",
+        "run": "Simulation starten",
+        "running": "Läuft...",
+        "loadingWasm": "WASM wird geladen...",
+        "duration": "Laufzeit: {{ms}} ms",
+        "clickToExpand": "Klicken zum Vergrößern",
+        "charts": {
+            "percentileLines": {
+                "title": "Portfolio-Perzentillinien",
+                "description": "P10, P50 (Median) und P90 über 1.000 Läufe"
+            },
+            "percentileBands": {
+                "title": "Portfolio-Perzentilbänder",
+                "description": "Schattierter Bereich = P10–P90 · Linie = Median (P50)"
+            },
+            "outcomeGroups": {
+                "title": "Portfolio-Ergebnisgruppen",
+                "description": "{{count}} gemittelte Simulationsgruppen"
+            },
+            "averageAssetValue": {
+                "title": "Durchschnittlicher Vermögenswert pro Schritt",
+                "description": "Mittelwert aller Läufe pro Asset (geglättet – zeigt nur den Trend)"
+            }
+        },
+        "endReturns": {
+            "title": "Endbewertung",
+            "inflationNote": "*Inflationsbereinigt (P50-Inflation = {{rate}}%). Portfoliowert ohne Anlage: {{value}}"
+        },
+        "settings": {
+            "portfolio": "Portfolio",
+            "inflation": "Inflation",
+            "misc": "Sonstiges",
+            "seed": "Seed",
+            "newRandomSeed": "Neuer zufälliger Startwert",
+            "includeInflation": "Inflation einbeziehen",
+            "useCustomInflation": "Benutzerdefinierte Inflation",
+            "rate": "Rate",
+            "volatility": "Volatilität",
+            "years": "Jahre",
+            "days": "Tage",
+            "yrs": "Jahre",
+            "tradingDaysTooltip": "Die Simulation verwendet Handelstage, 250 Tage = 1 Jahr",
+            "monthlySteps": "→ {{count}} monatliche Schritte (v2-Engine)",
+            "assetAllocations": "Vermögensaufteilung",
+            "selectAssets": "Assets auswählen",
+            "assetsCount": "{{count}} Assets (v2)",
+            "reset": "Zurücksetzen",
+            "evenDistribution": "Gleichmäßige Verteilung"
+        },
+        "assets": {
+            "categories": {
+                "fixedIncome": "Festverzinsliche",
+                "equities": "Aktien",
+                "convertibles": "Wandelanleihen",
+                "alternatives": "Alternatives",
+                "hedgeFunds": "Hedgefonds"
+            },
+            "selected_one": "{{count}} Asset ausgewählt",
+            "selected_other": "{{count}} Assets ausgewählt",
+            "cancel": "Abbrechen",
+            "confirm": "Bestätigen"
+        }
+    }
+}

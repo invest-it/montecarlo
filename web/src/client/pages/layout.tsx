@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
     createRootRoute,
     Outlet,
@@ -7,13 +8,13 @@ import {
 } from "@tanstack/react-router";
 
 type NavAction = {
-    label: string;
+    labelKey: "nav.joinRoom" | "nav.goHome";
     to: string;
 };
 
 const navActions: Record<string, NavAction> = {
-    "/": { label: "Join Room", to: "/rooms" },
-    "/rooms": { label: "Go Home", to: "/" },
+    "/": { labelKey: "nav.joinRoom", to: "/rooms" },
+    "/rooms": { labelKey: "nav.goHome", to: "/" },
 };
 
 type LayoutProps = {
@@ -23,6 +24,7 @@ type LayoutProps = {
 };
 
 function Layout({ children, sidebar, footer }: LayoutProps) {
+    const { t } = useTranslation();
     const { pathname } = useLocation();
     const action = navActions[pathname];
 
@@ -37,7 +39,7 @@ function Layout({ children, sidebar, footer }: LayoutProps) {
             <div className="drawer-content flex flex-col">
                 <nav
                     className="navbar bg-base-100 shadow-custom h-[87px] px-5 sm:px-10 flex justify-between sticky top-0 z-10"
-                    aria-label="Main navigation"
+                    aria-label={t("nav.mainNavigation")}
                 >
                     {sidebar && (
                         <label
@@ -75,7 +77,7 @@ function Layout({ children, sidebar, footer }: LayoutProps) {
                                     to={action.to}
                                     className="btn btn-sm bg-primary text-white"
                                 >
-                                    {action.label}
+                                    {t(action.labelKey)}
                                 </Link>
                             )}
                         </div>
@@ -118,14 +120,15 @@ function RootComponent() {
 }
 
 function InvestItFooter() {
+    const { t } = useTranslation();
     return (
         <footer
             className="bg-base-100 text-base-content border-t border-t-primary pb-5 pt-10"
-            aria-label="Site footer"
+            aria-label={t("nav.siteFooter")}
         >
             <div className="footer sm:footer-horizontal px-10">
                 <aside>
-                    <Link to="/" aria-label="Go to homepage">
+                    <Link to="/" aria-label={t("nav.goToHomepage")}>
                         <img
                             src="/assets/investit-footer-logo.svg"
                             alt="Invest It"
@@ -135,7 +138,7 @@ function InvestItFooter() {
                     <address className="not-italic mt-2">
                         <strong>Invest it&nbsp;e.V.</strong>
                         <br />
-                        Finanzielle Bildung - unabhängig. kostenlos. fundiert.
+                        {t("footer.tagline")}
                         <br />
                         Alsterchaussee 26
                         <br />
@@ -147,7 +150,7 @@ function InvestItFooter() {
             </div>
             <div className="border-t border-base-300 mt-6 pt-4">
                 <p className="mx-auto font-light text-xs text-center">
-                    © 2026 Invest it e.V. | Alle Rechte vorbehalten.
+                    {t("footer.copyright")}
                 </p>
             </div>
         </footer>

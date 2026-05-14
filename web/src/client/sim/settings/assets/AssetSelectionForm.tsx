@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { type AssetInfoMap } from "./data";
 
-const CATEGORIES: { label: string; from: number; to: number }[] = [
-    { label: "Fixed Income", from: 1, to: 18 },
-    { label: "Equities", from: 19, to: 34 },
-    { label: "Convertibles", from: 35, to: 36 },
-    { label: "Alternatives", from: 37, to: 49 },
-    { label: "Hedge Funds", from: 50, to: 55 },
+const CATEGORIES: { key: "fixedIncome" | "equities" | "convertibles" | "alternatives" | "hedgeFunds"; from: number; to: number }[] = [
+    { key: "fixedIncome", from: 1, to: 18 },
+    { key: "equities", from: 19, to: 34 },
+    { key: "convertibles", from: 35, to: 36 },
+    { key: "alternatives", from: 37, to: 49 },
+    { key: "hedgeFunds", from: 50, to: 55 },
 ];
 
 interface Props {
@@ -22,6 +23,7 @@ export function AssetSelectionForm({
     onConfirm,
     onCancel,
 }: Props) {
+    const { t } = useTranslation();
     const [selected, setSelected] = useState<Set<string>>(
         new Set(selectedAssets),
     );
@@ -51,9 +53,9 @@ export function AssetSelectionForm({
         <div className="flex flex-col gap-4">
             <div className="overflow-y-auto max-h-[60vh] space-y-4 pr-1">
                 {grouped.map((group) => (
-                    <div key={group.label}>
+                    <div key={group.key}>
                         <h4 className="text-xs font-semibold uppercase tracking-wider opacity-50 mb-1">
-                            {group.label}
+                            {t(`simulation.assets.categories.${group.key}`)}
                         </h4>
                         <div className="space-y-0.5">
                             {group.assets.map((asset) => (
@@ -85,12 +87,11 @@ export function AssetSelectionForm({
 
             <div className="flex items-center justify-between border-t border-base-300 pt-3">
                 <span className="text-xs opacity-50">
-                    {selected.size} asset{selected.size !== 1 ? "s" : ""}{" "}
-                    selected
+                    {t("simulation.assets.selected", { count: selected.size })}
                 </span>
                 <div className="flex gap-2">
                     <button className="btn btn-sm btn-ghost" onClick={onCancel}>
-                        Cancel
+                        {t("simulation.assets.cancel")}
                     </button>
                     <button
                         className="btn btn-sm btn-primary"
@@ -104,7 +105,7 @@ export function AssetSelectionForm({
                             )
                         }
                     >
-                        Confirm
+                        {t("simulation.assets.confirm")}
                     </button>
                 </div>
             </div>

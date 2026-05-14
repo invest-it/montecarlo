@@ -1,6 +1,8 @@
 import { useForm } from "@tanstack/react-form";
+import { useTranslation } from "react-i18next";
 
 export function JoinRoomForm() {
+    const { t } = useTranslation();
     const form = useForm({
         defaultValues: {
             id: "",
@@ -13,7 +15,7 @@ export function JoinRoomForm() {
 
     return (
         <div>
-            <h2 className="text-xl">Raum beitreten</h2>
+            <h2 className="text-xl">{t("rooms.join.title")}</h2>
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
@@ -29,7 +31,7 @@ export function JoinRoomForm() {
                                 <>
                                     <fieldset className="fieldset">
                                         <legend className="fieldset-legend">
-                                            Raum-ID
+                                            {t("rooms.join.roomId")}
                                         </legend>
                                         <input
                                             type="text"
@@ -43,9 +45,9 @@ export function JoinRoomForm() {
                                                     e.target.value,
                                                 )
                                             }
-                                            placeholder="Type here"
+                                            placeholder={t("rooms.join.placeholder")}
                                         />
-                                        <p className="label">Optional</p>
+                                        <p className="label">{t("rooms.join.optional")}</p>
                                     </fieldset>
                                 </>
                             );
@@ -63,7 +65,7 @@ export function JoinRoomForm() {
                                     type="submit"
                                     disabled={!canSubmit}
                                 >
-                                    {isSubmitting ? "..." : "Join"}
+                                    {isSubmitting ? "..." : t("rooms.join.submit")}
                                 </button>
                             </>
                         )}

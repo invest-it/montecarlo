@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useContextStore } from "@/client/common/hooks";
 import { SimulationContext } from "../SimulationProvider";
 import { Info } from "lucide-react";
@@ -14,17 +15,18 @@ export function StepSettings() {
             };
         });
 
+    const { t } = useTranslation();
     return (
         <>
             <div className="flex justify-between items-center gap-2">
                 <div>
                     <span className="text-sm mr-1">
-                        {useYears ? "Years" : "Days"}
+                        {useYears ? t("simulation.settings.years") : t("simulation.settings.days")}
                     </span>
                     {!useYears && (
                         <div
                             className="tooltip tooltip-right"
-                            data-tip="The simulation uses trading days, so 250 days = 1 year"
+                            data-tip={t("simulation.settings.tradingDaysTooltip")}
                         >
                             <Info size={12} />
                         </div>
@@ -60,13 +62,13 @@ export function StepSettings() {
                             }}
                             disabled={isRunning}
                         />
-                        Yrs
+                        {t("simulation.settings.yrs")}
                     </label>
                 </div>
             </div>
             {useYears && (
                 <p className="text-xs opacity-50 -mt-2">
-                    → {stepCount * 12} monthly steps (v2 engine)
+                    {t("simulation.settings.monthlySteps", { count: stepCount * 12 })}
                 </p>
             )}
         </>

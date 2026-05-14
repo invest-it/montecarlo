@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface SeedSettingsProps {
     seed: number;
     setSeed: (seed: number) => void;
@@ -5,9 +7,10 @@ interface SeedSettingsProps {
 }
 
 export function SeedSettings({ seed, setSeed, isDisabled }: SeedSettingsProps) {
+    const { t } = useTranslation();
     return (
         <div className="flex justify-between items-center gap-2">
-            <span className="text-sm">Seed</span>
+            <span className="text-sm">{t("simulation.settings.seed")}</span>
             <div>
                 <input
                     type="number"
@@ -24,7 +27,7 @@ export function SeedSettings({ seed, setSeed, isDisabled }: SeedSettingsProps) {
                     }
                     disabled={isDisabled}
                     className="btn btn-sm btn-secondary join-item"
-                    title="New random seed"
+                    title={t("simulation.settings.newRandomSeed")}
                 >
                     ↺
                 </button>

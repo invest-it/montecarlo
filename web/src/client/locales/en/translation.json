@@ -1,0 +1,113 @@
+{
+  "nav": {
+    "joinRoom": "Join Room",
+    "goHome": "Go Home",
+    "mainNavigation": "Main navigation",
+    "goToHomepage": "Go to homepage",
+    "siteFooter": "Site footer"
+  },
+  "footer": {
+    "tagline": "Financial education - independent. free. sound.",
+    "copyright": "© 2026 Invest it e.V. | All rights reserved."
+  },
+  "rooms": {
+    "or": "OR",
+    "join": {
+      "title": "Join Room",
+      "roomId": "Room ID",
+      "placeholder": "Type here",
+      "optional": "Optional",
+      "submit": "Join"
+    },
+    "create": {
+      "title": "Create New Room",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "roomName": "Room Name?",
+      "placeholder": "Type here",
+      "optional": "Optional",
+      "submit": "Create"
+    },
+    "nickname": {
+      "title": "Choose a username",
+      "label": "Nickname",
+      "placeholder": "e.g. JohnDoe",
+      "required": "Required",
+      "submit": "Continue"
+    }
+  },
+  "room": {
+    "title": "Room {{name}}",
+    "enterPasswordHint": "Enter password to see the room code",
+    "password": "Password",
+    "confirm": "Confirm",
+    "roomCode": "Room Code",
+    "owner": "Owner",
+    "wrongPassword": "Wrong password",
+    "notFound": "Room not found"
+  },
+  "simulation": {
+    "title": "Monte Carlo Portfolio Simulation",
+    "run": "Run Simulation",
+    "running": "Running...",
+    "loadingWasm": "Loading WASM...",
+    "duration": "Took {{ms}} ms to run",
+    "clickToExpand": "Click to expand",
+    "charts": {
+      "percentileLines": {
+        "title": "Portfolio Percentile Lines",
+        "description": "P10, P50 (median), and P90 across 1,000 runs"
+      },
+      "percentileBands": {
+        "title": "Portfolio Percentile Bands",
+        "description": "Shaded area = P10–P90 range · Line = median (P50)"
+      },
+      "outcomeGroups": {
+        "title": "Portfolio Outcome Groups",
+        "description": "{{count}} groups of runs averaged"
+      },
+      "averageAssetValue": {
+        "title": "Average Asset Value per Step",
+        "description": "Mean across all runs per asset (smoothed by averaging — shows drift only)"
+      }
+    },
+    "endReturns": {
+      "title": "End Returns",
+      "inflationNote": "*Inflation adjusted returns (p50 inflation = {{rate}}%). Portfolio value if uninvested: {{value}}"
+    },
+    "settings": {
+      "portfolio": "Portfolio",
+      "inflation": "Inflation",
+      "misc": "Misc",
+      "seed": "Seed",
+      "newRandomSeed": "New random seed",
+      "includeInflation": "Include Inflation",
+      "useCustomInflation": "Use Custom Inflation",
+      "rate": "Rate",
+      "volatility": "Volatility",
+      "years": "Years",
+      "days": "Days",
+      "yrs": "Yrs",
+      "tradingDaysTooltip": "The simulation uses trading days, so 250 days = 1 year",
+      "monthlySteps": "→ {{count}} monthly steps (v2 engine)",
+      "assetAllocations": "Asset Allocations",
+      "selectAssets": "Select Assets",
+      "assetsCount": "{{count}} assets (v2)",
+      "reset": "Reset",
+      "evenDistribution": "Even Distribution"
+    },
+    "assets": {
+      "categories": {
+        "fixedIncome": "Fixed Income",
+        "equities": "Equities",
+        "convertibles": "Convertibles",
+        "alternatives": "Alternatives",
+        "hedgeFunds": "Hedge Funds"
+      },
+      "selected_one": "{{count}} asset selected",
+      "selected_other": "{{count}} assets selected",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    }
+  }
+}

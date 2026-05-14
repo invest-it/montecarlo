@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "@tanstack/react-form";
 import { Eye, EyeOff } from "lucide-react";
 import { hc } from "hono/client";
@@ -18,6 +19,7 @@ function generatePassword(): string {
 }
 
 export function CreateRoomForm() {
+    const { t } = useTranslation();
     const [showPassword, setShowPassword] = useState(false);
     const [showReenter, setShowReenter] = useState(false);
 
@@ -62,7 +64,7 @@ export function CreateRoomForm() {
 
     return (
         <div>
-            <h2 className="text-xl">Neuen Raum erstellen</h2>
+            <h2 className="text-xl">{t("rooms.create.title")}</h2>
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
@@ -78,7 +80,7 @@ export function CreateRoomForm() {
                                 <>
                                     <fieldset className="fieldset">
                                         <legend className="fieldset-legend">
-                                            Passwort
+                                            {t("rooms.create.password")}
                                         </legend>
                                         <label className="input">
                                             <input
@@ -124,7 +126,7 @@ export function CreateRoomForm() {
                                 <>
                                     <fieldset className="fieldset">
                                         <legend className="fieldset-legend">
-                                            Passwort bestätigen
+                                            {t("rooms.create.confirmPassword")}
                                         </legend>
                                         <label className="input">
                                             <input
@@ -170,7 +172,7 @@ export function CreateRoomForm() {
                                 <>
                                     <fieldset className="fieldset">
                                         <legend className="fieldset-legend">
-                                            Raum-Name?
+                                            {t("rooms.create.roomName")}
                                         </legend>
                                         <input
                                             type="text"
@@ -184,9 +186,9 @@ export function CreateRoomForm() {
                                                     e.target.value,
                                                 )
                                             }
-                                            placeholder="Type here"
+                                            placeholder={t("rooms.create.placeholder")}
                                         />
-                                        <p className="label">Optional</p>
+                                        <p className="label">{t("rooms.create.optional")}</p>
                                     </fieldset>
                                 </>
                             );
@@ -204,7 +206,7 @@ export function CreateRoomForm() {
                                     type="submit"
                                     disabled={!canSubmit}
                                 >
-                                    {isSubmitting ? "..." : "Create"}
+                                    {isSubmitting ? "..." : t("rooms.create.submit")}
                                 </button>
                             </>
                         )}

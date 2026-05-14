@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { LineChart, PercentileChart } from "../sim/LineChart";
 import { EndReturnsCard } from "../sim/EndReturnsCard";
 import { useChartAnimation, type ChartDef } from "../sim/animation";
@@ -13,6 +14,7 @@ import { useContextStore } from "../common/hooks";
 import { useWasm } from "../init-wasm";
 
 function IndexSimulation() {
+    const { t } = useTranslation();
     const n_groups = 10;
 
     const [selectedChartIdx, setSelectedChartIdx] = useState<number | null>(
@@ -37,8 +39,8 @@ function IndexSimulation() {
 
     const charts: ChartDef[] = [
         {
-            title: "Portfolio Percentile Lines",
-            description: "P10, P50 (median), and P90 across 1,000 runs",
+            title: t("simulation.charts.percentileLines.title"),
+            description: t("simulation.charts.percentileLines.description"),
             element: (
                 <LineChart
                     labels={["P10", "P50", "P90"]}
@@ -55,8 +57,8 @@ function IndexSimulation() {
             ),
         },
         {
-            title: "Portfolio Percentile Bands",
-            description: "Shaded area = P10–P90 range · Line = median (P50)",
+            title: t("simulation.charts.percentileBands.title"),
+            description: t("simulation.charts.percentileBands.description"),
             element: (
                 <PercentileChart
                     series={pct.series}
@@ -66,8 +68,8 @@ function IndexSimulation() {
             ),
         },
         {
-            title: "Portfolio Outcome Groups",
-            description: `${n_groups} groups of runs averaged`,
+            title: t("simulation.charts.outcomeGroups.title"),
+            description: t("simulation.charts.outcomeGroups.description", { count: n_groups }),
             element: (
                 <LineChart
                     labels={[]}
@@ -79,9 +81,8 @@ function IndexSimulation() {
             ),
         },
         {
-            title: "Average Asset Value per Step",
-            description:
-                "Mean across all runs per asset (smoothed by averaging — shows drift only)",
+            title: t("simulation.charts.averageAssetValue.title"),
+            description: t("simulation.charts.averageAssetValue.description"),
             element: (
                 <LineChart
                     labels={selectedAssets.byLabel}
@@ -123,15 +124,14 @@ function IndexSimulation() {
                                 className="btn btn-sm btn-primary"
                             >
                                 {isRunning
-                                    ? "Running..."
+                                    ? t("simulation.running")
                                     : isWasmReady
-                                      ? "Run Simulation"
-                                      : "Loading WASM..."}
+                                      ? t("simulation.run")
+                                      : t("simulation.loadingWasm")}
                             </button>
                             {simResults?.durationMs !== null && !isRunning && (
                                 <span className="text-xs opacity-50">
-                                    Took {simResults?.durationMs.toFixed(0)} ms
-                                    to run
+                                    {t("simulation.duration", { ms: simResults?.durationMs.toFixed(0) })}
                                 </span>
                             )}
                         </div>
@@ -157,7 +157,7 @@ function IndexSimulation() {
                             key={chart.title}
                             className="cursor-pointer group card bg-base-100 shadow-custom"
                             onClick={() => openChart(i)}
-                            title="Click to expand"
+                            title={t("simulation.clickToExpand")}
                         >
                             <div className="card-body">
                                 <h3 className="text-sm font-semibold mb-1 group-hover:underline">
@@ -202,11 +202,12 @@ function IndexSimulation() {
 }
 
 export function index() {
+    const { t } = useTranslation();
     return (
         <SimulationProvider>
             <div className="mx-auto w-full max-w-7xl">
                 <h2 className="text-4xl font-bold leading-snug mb-8">
-                    Monte Carlo Portfolio Simulation
+                    {t("simulation.title")}
                 </h2>
 
                 <IndexSimulation />

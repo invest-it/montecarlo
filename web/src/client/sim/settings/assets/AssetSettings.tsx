@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { AssetAllocationSettings } from "./AssetAllocationSettings";
 import { useContextStore } from "@/client/common/hooks";
 import { SimulationContext, useSelectedAssets } from "../../SimulationProvider";
@@ -7,6 +8,7 @@ import { useAssets } from "./data";
 import { useWasm } from "@/client/init-wasm";
 
 export function AssetSettings() {
+    const { t } = useTranslation();
     const { allocations, setAllocations, isRunning, setSelectedAssets } =
         useContextStore(SimulationContext, (state) => {
             return {
@@ -27,11 +29,12 @@ export function AssetSettings() {
     return (
         <div>
             <span className="text-md font-medium mb-4 block">
-                Asset Allocations
+                {t("simulation.settings.assetAllocations")}
             </span>
 
             <AssetAllocationSettings
                 allocations={allocations}
+                assets={assets}
                 onChange={setAllocations}
                 disabled={isRunning}
             />
@@ -40,7 +43,9 @@ export function AssetSettings() {
                 <div className="mt-4">
                     <div className="flex justify-between items-center">
                         <span className="text-xs opacity-50">
-                            {selectedAssets.byLabel.length} assets (v2)
+                            {t("simulation.settings.assetsCount", {
+                                count: selectedAssets.byLabel.length,
+                            })}
                         </span>
                         <button
                             className="btn btn-xs btn-outline"
@@ -50,7 +55,7 @@ export function AssetSettings() {
                                 assetModalRef.current?.showModal();
                             }}
                         >
-                            Select Assets
+                            {t("simulation.settings.selectAssets")}
                         </button>
                     </div>
                     <dialog ref={assetModalRef} className="modal">
@@ -61,7 +66,7 @@ export function AssetSettings() {
                                 </button>
                             </form>
                             <h3 className="font-bold text-lg mb-4">
-                                Select Assets
+                                {t("simulation.settings.selectAssets")}
                             </h3>
                             {assetModalOpen && (
                                 <AssetSelectionForm

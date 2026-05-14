@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface PortfolioSettingsProps {
     portfolio: number;
     setPortfolio: (portfolio: number) => void;
@@ -9,9 +11,10 @@ export function PortfolioSettings({
     setPortfolio,
     isDisabled,
 }: PortfolioSettingsProps) {
+    const { t } = useTranslation();
     return (
         <div className="flex justify-between items-center gap-2">
-            <span className="text-sm">Portfolio </span>
+            <span className="text-sm">{t("simulation.settings.portfolio")} </span>
 
             <label className="input input-sm w-32">
                 <input

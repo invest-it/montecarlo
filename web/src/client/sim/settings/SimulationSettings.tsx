@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useContextStore } from "@/client/common/hooks";
 import { PortfolioSettings } from "./PortfolioSettings";
 import { SimulationContext } from "../SimulationProvider";
@@ -32,6 +33,7 @@ export function SimulationSettings() {
             setInflationConfig: s.setInflationConfig,
         };
     });
+    const { t } = useTranslation();
     return (
         <div className="flex flex-col items-stretch gap-4 mb-10">
             <PortfolioSettings
@@ -43,7 +45,7 @@ export function SimulationSettings() {
 
             <div>
                 <span className="text-md font-medium my-4 block">
-                    Inflation
+                    {t("simulation.settings.inflation")}
                 </span>
 
                 <InflationSettings
@@ -55,7 +57,7 @@ export function SimulationSettings() {
                 />
             </div>
 
-            <span className="text-md font-medium my-4 block">Misc</span>
+            <span className="text-md font-medium my-4 block">{t("simulation.settings.misc")}</span>
 
             <SeedSettings
                 seed={seed}

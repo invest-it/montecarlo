@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export interface InflationConfig {
     rate: number;
@@ -24,12 +25,13 @@ export function InflationSettings({
     config,
     onConfigChange,
 }: InflationSettingsProps) {
+    const { t } = useTranslation();
     const [customInflation, setCustomInflation] = useState(false);
 
     return (
         <div className="flex flex-col">
             <label className="flex justify-between items-center cursor-pointer mb-3">
-                <span className="text-sm">Include Inflation</span>
+                <span className="text-sm">{t("simulation.settings.includeInflation")}</span>
 
                 <input
                     type="checkbox"
@@ -42,7 +44,7 @@ export function InflationSettings({
             {includeInflation && (
                 <div className="pl-4">
                     <label className="flex justify-between items-center cursor-pointer my-3">
-                        <span className="text-sm">Use Custom Inflation</span>
+                        <span className="text-sm">{t("simulation.settings.useCustomInflation")}</span>
 
                         <input
                             type="checkbox"
@@ -60,7 +62,7 @@ export function InflationSettings({
                     {customInflation && (
                         <>
                             <label className="flex justify-between items-center mb-2">
-                                <span className="text-sm">Rate</span>
+                                <span className="text-sm">{t("simulation.settings.rate")}</span>
 
                                 <input
                                     type="number"
@@ -81,7 +83,7 @@ export function InflationSettings({
                                 />
                             </label>
                             <label className="flex justify-between items-center mb-2">
-                                <span className="text-sm">Volatility</span>
+                                <span className="text-sm">{t("simulation.settings.volatility")}</span>
 
                                 <input
                                     type="number"

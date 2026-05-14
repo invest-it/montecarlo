@@ -1,6 +1,8 @@
 import { useMemo, useState, useTransition } from "react";
+import { useTranslation } from "react-i18next";
 import type { AssetAllocationMap } from "./allocations";
 import _ from "lodash";
+import type { AssetInfoMap } from "./data";
 
 interface AssetAllocationSliderProps {
     label: string;
@@ -88,25 +90,32 @@ function AssetAllocationSlider({
 
 interface AssetAllocationSettingsProps {
     allocations: AssetAllocationMap;
+    assets: AssetInfoMap;
     onChange: (allocations: AssetAllocationMap) => void;
     disabled?: boolean;
 }
 
 export function AssetAllocationSettings({
     allocations,
+    assets,
     onChange,
     disabled,
 }: AssetAllocationSettingsProps) {
+    const { t } = useTranslation();
     const [isPending, startTransition] = useTransition();
 
-    const keys = Object.keys(allocations);
+    const sortedKeys = useMemo(() => {
+        return Object.keys(allocations).sort(
+            (a, b) => (assets[a]?.index ?? 0) - (assets[b]?.index ?? 0),
+        );
+    }, [Object.keys(allocations).sort().join(","), assets]);
 
     function handleChange(
         label: string,
         newValue: number,
         reset: boolean = false,
     ) {
-        const others = keys.filter((k) => k !== label);
+        const others = sortedKeys.filter((k) => k !== label);
         const remaining = 100 - newValue;
 
         const totalWeight = others.reduce(
@@ -140,11 +149,11 @@ export function AssetAllocationSettings({
 
     return (
         <div className="flex flex-col w-full max-w-2xl gap-1">
-            {Object.entries(allocations).map(([label, value]) => (
+            {sortedKeys.map((label) => (
                 <AssetAllocationSlider
                     key={label}
                     label={label}
-                    value={value}
+                    value={allocations[label] || 0}
                     onChange={(label, value) => {
                         startTransition(() => handleChange(label, value));
                     }}
@@ -156,23 +165,23 @@ export function AssetAllocationSettings({
             <div className="flex flex-row gap-2 mt-4">
                 <button
                     className="btn btn-xs btn-ghost bg-base-200"
-                    onClick={() => handleChange(keys[0]!, 100)}
+                    onClick={() => handleChange(sortedKeys[0]!, 100)}
                     disabled={disabled}
                 >
-                    Reset
+                    {t("simulation.settings.reset")}
                 </button>
                 <button
                     className="btn btn-xs btn-ghost bg-base-200"
                     onClick={() =>
                         handleChange(
-                            keys[0]!,
-                            Math.round(100 / keys.length),
+                            sortedKeys[0]!,
+                            Math.round(100 / sortedKeys.length),
                             true,
                         )
                     }
                     disabled={disabled}
                 >
-                    Even Distribution
+                    {t("simulation.settings.evenDistribution")}
                 </button>
             </div>
         </div>

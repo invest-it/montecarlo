@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 export interface EndReturns {
     p10: number;
@@ -15,6 +16,7 @@ export function EndReturnsCard({
     portfolio: number;
     inflation?: EndReturns;
 }) {
+    const { t } = useTranslation();
     const fmt = (v: number) =>
         v.toLocaleString("de-DE", {
             style: "currency",
@@ -49,7 +51,7 @@ export function EndReturnsCard({
     return (
         <div className="mt-4">
             <span className="text-sm font-semibold block mb-2">
-                End Returns
+                {t("simulation.endReturns.title")}
             </span>
             <div className="space-y-1 grid grid-cols-3">
                 {rows.map(({ label, value, accent }, idx) => (
@@ -82,9 +84,11 @@ export function EndReturnsCard({
 
             {inflation && (
                 <span className="text-xs font-semibold opacity-50 block mb-2">
-                    <sup>*</sup>Inflation adjusted returns (p50 inflation ={" "}
-                    {((inflation.p50 - 1) * 100).toFixed(1)}%). Portfolio value
-                    if uninvested: {fmt(portfolio / inflation.p50)}
+                    <sup>*</sup>
+                    {t("simulation.endReturns.inflationNote", {
+                        rate: ((inflation.p50 - 1) * 100).toFixed(1),
+                        value: fmt(portfolio / inflation.p50),
+                    })}
                 </span>
             )}
         </div>

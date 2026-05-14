@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Eye, EyeOff } from "lucide-react";
 import { hc } from "hono/client";
 import { useMutation } from "@tanstack/react-query";
@@ -8,6 +9,7 @@ import type { ApiClient } from "@/index";
 import type { IntrospectRoomResponse } from "@/schema/room-schemas";
 
 export function room() {
+    const { t } = useTranslation();
     const { id } = roomRoute.useParams();
     const { room, isLoading } = useQueryOwnedRoom();
 
@@ -24,7 +26,7 @@ export function room() {
                 json: { id, password },
             });
             if (!res.ok) {
-                throw new Error(res.status === 401 ? "Falsches Passwort" : "Raum nicht gefunden");
+                throw new Error(res.status === 401 ? t("room.wrongPassword") : t("room.notFound"));
             }
             return res.json() as Promise<IntrospectRoomResponse>;
         },
@@ -44,9 +46,9 @@ export function room() {
             <div className="p-6 w-full max-w-md">
                 {room && !roomConfig && (
                     <div className="card bg-base-100 shadow-custom p-6">
-                        <h2 className="text-xl mb-4">Raum {room.name ?? id}</h2>
+                        <h2 className="text-xl mb-4">{t("room.title", { name: room.name ?? id })}</h2>
                         <p className="text-sm text-base-content/60 mb-4">
-                            Passwort eingeben um den Raum-Code zu sehen
+                            {t("room.enterPasswordHint")}
                         </p>
                         <form
                             onSubmit={(e) => {
@@ -56,7 +58,7 @@ export function room() {
                         >
                             <fieldset className="fieldset mb-4">
                                 <legend className="fieldset-legend">
-                                    Passwort
+                                    {t("room.password")}
                                 </legend>
                                 <label className="input">
                                     <input
@@ -95,7 +97,7 @@ export function room() {
                                     !password || introspect.isPending
                                 }
                             >
-                                {introspect.isPending ? "..." : "Bestätigen"}
+                                {introspect.isPending ? "..." : t("room.confirm")}
                             </button>
                         </form>
                     </div>
@@ -107,7 +109,7 @@ export function room() {
                         <div className="space-y-2 text-sm">
                             <div>
                                 <span className="text-base-content/60">
-                                    Raum-Code
+                                    {t("room.roomCode")}
                                 </span>
                                 <p className="font-mono font-bold text-lg tracking-wider">
                                     {roomConfig.code}
@@ -115,7 +117,7 @@ export function room() {
                             </div>
                             <div>
                                 <span className="text-base-content/60">
-                                    Eigentümer
+                                    {t("room.owner")}
                                 </span>
                                 <p>{roomConfig.owner}</p>
                             </div>
@@ -125,7 +127,7 @@ export function room() {
 
                 {!room && (
                     <div>
-                        <p>Raum {id}</p>
+                        <p>{t("room.title", { name: id })}</p>
                     </div>
                 )}
             </div>
