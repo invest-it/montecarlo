@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { AssetAllocationSlider } from "./AssetAllocationSlider";
+import { AssetAllocationSettings } from "./AssetAllocationSettings";
 import { useContextStore } from "@/client/common/hooks";
 import { SimulationContext, useSelectedAssets } from "../../SimulationProvider";
 import { AssetSelectionForm } from "./AssetSelectionForm";
@@ -30,7 +30,7 @@ export function AssetSettings() {
                 Asset Allocations
             </span>
 
-            <AssetAllocationSlider
+            <AssetAllocationSettings
                 allocations={allocations}
                 onChange={setAllocations}
                 disabled={isRunning}
