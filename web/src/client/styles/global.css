@@ -1,6 +1,92 @@
 @import "tailwindcss";
 @plugin "daisyui" {
     themes:
-        light --default,
+        invest --default,
+        light,
         dark;
+}
+
+@plugin "daisyui/theme" {
+    name: "invest";
+    default: true;
+    prefersdark: false;
+    color-scheme: light;
+    --color-base-100: #fff;
+    --color-base-200: #ecf7df;
+    --color-base-300: #e5e7eb;
+    --color-base-content: #000;
+    --color-primary: #269e43;
+    --color-primary-content: oklch(100% 0 0);
+    --color-secondary: #97bc4e;
+    --color-secondary-content: oklch(100% 0 0);
+    --color-accent: #e9f3d8;
+    --color-accent-content: #97bc4e;
+    --color-neutral: #97bc4e;
+    --color-neutral-content: oklch(98% 0.002 247.839);
+    --color-info: #0090f1;
+    --color-info-content: oklch(97% 0.013 236.62);
+    --color-success: #269e43;
+    --color-success-content: oklch(97% 0.021 166.113);
+    --color-warning: #f4a300;
+    --color-warning-content: oklch(98% 0.026 102.212);
+    --color-error: #d90429;
+    --color-error-content: oklch(96% 0.015 12.422);
+    --radius-selector: 1rem;
+    --radius-field: 0.5rem;
+    --radius-box: 1rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.28125rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}
+
+:root,
+body {
+    min-height: 100%;
+    background: var(--color-base-100);
+}
+
+body {
+    font-family:
+        ui-sans-serif,
+        system-ui,
+        sans-serif,
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        "Noto Color Emoji";
+}
+
+.shadow-custom {
+    box-shadow: 2px 5px 20px -5px #0003;
+}
+
+.tooltip:before {
+    max-width: 200px;
+    white-space: normal;
+    background: var(--color-primary);
+}
+
+.input:disabled,
+.input[disabled] {
+    cursor: not-allowed;
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+    color: var(--color-base-content);
+}
+
+.input:has(> input:disabled) {
+    cursor: not-allowed;
+    border-color: var(--color-base-300);
+    background-color: var(--color-base-300);
+    color: var(--color-base-content);
+}
+
+.btn:is(:disabled, [disabled], .btn-disabled):not(.btn-link, .btn-ghost) {
+    cursor: not-allowed;
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+    color: var(--color-base-content);
+    opacity: 0.6;
 }

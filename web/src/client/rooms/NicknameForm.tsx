@@ -20,7 +20,7 @@ export function NicknameForm({ onCreated }: Props) {
     });
 
     return (
-        <div className="card bg-base-300 rounded-box p-8 max-w-sm w-full mx-auto">
+        <div className="card bg-base-100 shadow-custom p-8 max-w-sm w-full mx-auto">
             <h2 className="text-xl mb-4">Wähle einen Nutzernamen</h2>
             <form
                 onSubmit={(e) => {
