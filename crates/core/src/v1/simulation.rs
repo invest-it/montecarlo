@@ -56,7 +56,7 @@ pub fn run_simulation<R: Rng>(
     run: usize,
     tx: Option<&std::sync::mpsc::SyncSender<StepUpdate>>,
 ) -> f64 {
-    let mut prices = config.prices;
+    let mut prices = config.portfolio;
 
     run_simulation_range(config, 0..config.n_steps, rng, &mut prices, run, tx);
 

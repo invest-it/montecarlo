@@ -5,15 +5,21 @@ interface Props {
     disabled?: boolean;
 }
 
-export function AssetAllocations({
+export function AssetAllocationSlider({
     labels,
     allocations,
     onChange,
     disabled,
 }: Props) {
-    function handleChange(i: number, newValue: number) {
+    function handleChange(i: number, newValue: number, reset: boolean = false) {
+        if (reset) {
+            allocations.fill(0);
+        }
+
         const remaining = 100 - newValue;
-        const next = [...allocations];
+        const next = reset
+            ? new Array(allocations.length).fill(0)
+            : [...allocations];
         next[i] = newValue;
 
         const others = labels.map((_, j) => j).filter((j) => j !== i);
@@ -53,10 +59,10 @@ export function AssetAllocations({
     }
 
     return (
-        <div>
+        <div className="flex flex-col">
             {labels.map((label, i) => (
                 <div key={label} className="flex items-center mb-2">
-                    <span className="min-w-20 text-sm">{label}</span>
+                    <span className="min-w-48 text-sm">{label}</span>
                     <input
                         type="range"
                         min={0}
@@ -73,6 +79,28 @@ export function AssetAllocations({
                     </span>
                 </div>
             ))}
+            <div className="flex flex-row gap-1">
+                <button
+                    className="btn btn-xs"
+                    onClick={() => {
+                        handleChange(0, 100);
+                    }}
+                >
+                    Reset
+                </button>
+                <button
+                    className="btn btn-xs"
+                    onClick={() => {
+                        handleChange(
+                            0,
+                            parseInt((100 / allocations.length).toFixed(0)),
+                            true,
+                        );
+                    }}
+                >
+                    Even
+                </button>
+            </div>
         </div>
     );
 }
