@@ -10,6 +10,7 @@ import {
 import { useSimulation, type SimResults } from "../sim/simulation";
 import { SimulationSettings } from "../sim/settings/SimulationSettings";
 import { useContextStore } from "../common/hooks";
+import { useWasm } from "../init-wasm";
 
 function IndexSimulation() {
     const n_groups = 10;
@@ -83,7 +84,7 @@ function IndexSimulation() {
                 "Mean across all runs per asset (smoothed by averaging — shows drift only)",
             element: (
                 <LineChart
-                    labels={selectedAssets.map((a) => a.label)}
+                    labels={selectedAssets.byLabel}
                     series={avg.series}
                     renderKey={avg.renderKey}
                     showLegend
@@ -95,16 +96,13 @@ function IndexSimulation() {
 
     const [simResults, setSimResults] = useState<SimResults | null>(null);
 
-    const {
-        runSimulation,
-        isRunning,
-        isWasmReady,
-        portfolio,
-        includeInflation,
-    } = useSimulation(
-        { avg, grp, pct, avg_inflation, grp_inflation, pct_inflation },
-        n_groups,
-    );
+    const { runSimulation, isRunning, portfolio, includeInflation } =
+        useSimulation(
+            { avg, grp, pct, avg_inflation, grp_inflation, pct_inflation },
+            n_groups,
+        );
+
+    const isWasmReady = useWasm();
 
     return (
         <>

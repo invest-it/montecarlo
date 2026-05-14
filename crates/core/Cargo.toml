@@ -24,6 +24,8 @@ rand_distr = "0.6.0"
 nalgebra = "0.34.2"
 
 js-sys = "0.3.98"
+serde_json = "1.0.149"
+serde = "1.0.228"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"

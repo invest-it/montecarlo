@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAssets } from "./data";
+import { type AssetInfoMap } from "./data";
 
 const CATEGORIES: { label: string; from: number; to: number }[] = [
     { label: "Fixed Income", from: 1, to: 18 },
@@ -10,39 +10,41 @@ const CATEGORIES: { label: string; from: number; to: number }[] = [
 ];
 
 interface Props {
-    selectedIndices: number[];
-    onConfirm: (indices: number[]) => void;
+    assets: AssetInfoMap;
+    selectedAssets: string[];
+    onConfirm: (indices: string[]) => void;
     onCancel: () => void;
 }
 
 export function AssetSelectionForm({
-    selectedIndices,
+    assets,
+    selectedAssets,
     onConfirm,
     onCancel,
 }: Props) {
-    const [selected, setSelected] = useState<Set<number>>(
-        new Set(selectedIndices),
+    const [selected, setSelected] = useState<Set<string>>(
+        new Set(selectedAssets),
     );
-
-    const assets = useAssets();
 
     // Keep local selection in sync when the parent changes (e.g. reset)
     useEffect(() => {
-        setSelected(new Set(selectedIndices));
-    }, [selectedIndices]);
+        setSelected(new Set(selectedAssets));
+    }, [selectedAssets]);
 
-    function toggle(index: number) {
+    function toggle(label: string) {
         setSelected((prev) => {
             const next = new Set(prev);
-            if (next.has(index)) next.delete(index);
-            else next.add(index);
+            if (next.has(label)) next.delete(label);
+            else next.add(label);
             return next;
         });
     }
 
     const grouped = CATEGORIES.map((cat) => ({
         ...cat,
-        assets: assets.filter((a) => a.index >= cat.from && a.index <= cat.to),
+        assets: Object.values(assets).filter(
+            (a) => a.index >= cat.from && a.index <= cat.to,
+        ),
     }));
 
     return (
@@ -62,8 +64,8 @@ export function AssetSelectionForm({
                                     <input
                                         type="checkbox"
                                         className="checkbox checkbox-xs"
-                                        checked={selected.has(asset.index)}
-                                        onChange={() => toggle(asset.index)}
+                                        checked={selected.has(asset.label)}
+                                        onChange={() => toggle(asset.label)}
                                     />
                                     <span className="flex-1 text-sm">
                                         {asset.label}
@@ -95,7 +97,10 @@ export function AssetSelectionForm({
                         disabled={selected.size === 0}
                         onClick={() =>
                             onConfirm(
-                                Array.from(selected).sort((a, b) => a - b),
+                                Array.from(selected).sort(
+                                    (a, b) =>
+                                        assets[a]!.index - assets[b]!.index,
+                                ),
                             )
                         }
                     >

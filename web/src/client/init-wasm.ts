@@ -4,6 +4,7 @@
 import { Err, Ok, type Result } from "@/result";
 import { initSync, type InitOutput } from "@/wasm/core";
 import wasmUrl from "@/wasm/core_bg.wasm?url";
+import { useEffect, useState } from "react";
 
 export async function initWasm(): Promise<Result<InitOutput, any>> {
     console.log(wasmUrl);
@@ -24,4 +25,28 @@ export async function initWasm(): Promise<Result<InitOutput, any>> {
             return Err(error);
         });
     // TODO: Handle error
+}
+
+let wasmPromise: ReturnType<typeof initWasm> | null = null;
+
+export function useWasm() {
+    const [isWasmReady, setWasmReady] = useState(false);
+
+    useEffect(() => {
+        // 2. Only call initWasm if it hasn't been started yet
+        if (!wasmPromise) {
+            wasmPromise = initWasm();
+        }
+
+        // 3. All components wait for the same promise instance
+        wasmPromise
+            .then((result) => {
+                setWasmReady(result.ok);
+            })
+            .catch(() => {
+                setWasmReady(false);
+            });
+    }, []);
+
+    return isWasmReady;
 }

@@ -2,26 +2,25 @@ import { createContext, useMemo, useRef } from "react";
 import { create } from "zustand";
 import {
     DEFAULT_ALLOCS,
-    DEFAULT_ASSET_INDICES,
+    DEFAULT_ASSET_LABELS,
 } from "./settings/assets/defaults";
-import { useAssets, type AssetInfo } from "./settings/assets/data";
+import { useAssets } from "./settings/assets/data";
 import { useContextStore } from "../common/hooks";
 import type { InflationConfig } from "./settings/InflationSettings";
+import { useWasm } from "../init-wasm";
+import { reset, type AssetAllocationMap } from "./settings/assets/allocations";
 
 interface SimulationState {
-    allocations: number[];
-    setAllocations: (allocations: number[]) => void;
+    allocations: AssetAllocationMap;
+    setAllocations: (allocations: AssetAllocationMap) => void;
     portfolio: number;
     setPortfolio: (portfolio: number) => void;
 
     isRunning: boolean;
     setRunning: (isRunning: boolean) => void;
 
-    isWasmReady: boolean;
-    setWasmReady: (isWasmReady: boolean) => void;
-
-    assetIndices: number[];
-    setAssetIndices: (assetIndices: number[]) => void;
+    selectedAssets: string[];
+    setSelectedAssets: (assetLabels: string[]) => void;
 
     useYears: boolean;
     setUseYears: (useYears: boolean) => void;
@@ -40,25 +39,20 @@ interface SimulationState {
 }
 
 const createSimulationStore = () =>
-    create<SimulationState>((set) => ({
+    create<SimulationState>((set, get) => ({
         allocations: DEFAULT_ALLOCS,
-        setAllocations: (allocations: number[]) => set({ allocations }),
+        setAllocations: (allocations: AssetAllocationMap) =>
+            set({ allocations }),
         portfolio: 10000,
         setPortfolio: (portfolio: number) => set({ portfolio }),
         isRunning: false,
         setRunning: (isRunning: boolean) => set({ isRunning }),
 
-        isWasmReady: false,
-        setWasmReady: (isWasmReady: boolean) => set({ isWasmReady }),
-
-        assetIndices: [...DEFAULT_ASSET_INDICES],
-        setAssetIndices: (assetIndices: number[]) =>
+        selectedAssets: Object.values(DEFAULT_ASSET_LABELS),
+        setSelectedAssets: (assetLabels: string[]) =>
             set({
-                assetIndices,
-                allocations: Array.from([
-                    100,
-                    ...Array(assetIndices.length - 1).fill(0),
-                ]),
+                selectedAssets: assetLabels,
+                allocations: reset(get().allocations),
             }),
 
         useYears: false,
@@ -91,6 +85,7 @@ export function SimulationProvider({
     children: React.ReactNode;
 }) {
     const store = useRef(createSimulationStore()).current;
+    useWasm();
     return (
         <SimulationContext.Provider value={store}>
             {children}
@@ -100,11 +95,25 @@ export function SimulationProvider({
 
 export const useSelectedAssets = () => {
     const assets = useAssets();
-    const assetIndices = useContextStore(
+    const selectedAssets = useContextStore(
         SimulationContext,
-        (s) => s.assetIndices,
+        (s) => s.selectedAssets,
     );
     return useMemo(() => {
-        return assets.filter((a) => assetIndices.includes(a.index));
-    }, [assets, assetIndices]);
+        if (Object.keys(assets).length === 0) {
+            console.log("No assets available");
+            return {
+                byList: [],
+                byIndex: [],
+                byLabel: [],
+            };
+        }
+        return {
+            byList: selectedAssets.map((label) => assets[label]!),
+            byIndex: selectedAssets.map((label) => {
+                return assets[label]!.index;
+            }),
+            byLabel: selectedAssets,
+        };
+    }, [assets, selectedAssets]);
 };

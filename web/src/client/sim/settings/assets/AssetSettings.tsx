@@ -1,46 +1,28 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { AssetAllocationSlider } from "./AssetAllocationSlider";
 import { useContextStore } from "@/client/common/hooks";
 import { SimulationContext, useSelectedAssets } from "../../SimulationProvider";
 import { AssetSelectionForm } from "./AssetSelectionForm";
-import { get_available_assets } from "@/wasm/core";
-import { useAssetStore, type AssetInfo } from "./data";
-import { useShallow } from "zustand/react/shallow";
+import { useAssets } from "./data";
+import { useWasm } from "@/client/init-wasm";
 
 export function AssetSettings() {
-    const {
-        allocations,
-        setAllocations,
-        isRunning,
-        isWasmReady,
-        assetIndices,
-        setAssetIndices,
-    } = useContextStore(SimulationContext, (state) => {
-        return {
-            allocations: state.allocations,
-            setAllocations: state.setAllocations,
-            isRunning: state.isRunning,
-            isWasmReady: state.isWasmReady,
-
-            assetIndices: state.assetIndices,
-            setAssetIndices: state.setAssetIndices,
-        };
-    });
-
-    const [_, setAssets] = useAssetStore(
-        useShallow((state) => [state.assets, state.setAssets]),
-    );
-    useEffect(() => {
-        if (isWasmReady) {
-            const parsed = JSON.parse(get_available_assets()) as AssetInfo[];
-            setAssets(parsed);
-        }
-    }, [isWasmReady]);
+    const { allocations, setAllocations, isRunning, setSelectedAssets } =
+        useContextStore(SimulationContext, (state) => {
+            return {
+                allocations: state.allocations,
+                setAllocations: state.setAllocations,
+                isRunning: state.isRunning,
+                setSelectedAssets: state.setSelectedAssets,
+            };
+        });
 
     const [assetModalOpen, setAssetModalOpen] = useState(false);
     const assetModalRef = useRef<HTMLDialogElement>(null);
 
+    const assets = useAssets();
     const selectedAssets = useSelectedAssets();
+    const isWasmReady = useWasm();
 
     return (
         <div>
@@ -49,7 +31,6 @@ export function AssetSettings() {
             </span>
 
             <AssetAllocationSlider
-                labels={selectedAssets.map((a) => a.label)}
                 allocations={allocations}
                 onChange={setAllocations}
                 disabled={isRunning}
@@ -59,7 +40,7 @@ export function AssetSettings() {
                 <div className="mt-4">
                     <div className="flex justify-between items-center">
                         <span className="text-xs opacity-50">
-                            {assetIndices.length} assets (v2)
+                            {selectedAssets.byLabel.length} assets (v2)
                         </span>
                         <button
                             className="btn btn-xs btn-outline"
@@ -84,9 +65,10 @@ export function AssetSettings() {
                             </h3>
                             {assetModalOpen && (
                                 <AssetSelectionForm
-                                    selectedIndices={assetIndices}
-                                    onConfirm={(indices) => {
-                                        setAssetIndices(indices);
+                                    assets={assets}
+                                    selectedAssets={selectedAssets.byLabel}
+                                    onConfirm={(labels) => {
+                                        setSelectedAssets(labels);
                                         assetModalRef.current?.close();
                                     }}
                                     onCancel={() =>

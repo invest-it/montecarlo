@@ -16,6 +16,7 @@
 //! ```
 
 use nalgebra::{DMatrix, DVector};
+use serde::{Deserialize, Serialize};
 
 // ─── Asset enum ───────────────────────────────────────────────────────────────
 
@@ -23,7 +24,7 @@ use nalgebra::{DMatrix, DVector};
 ///
 /// The discriminant is the row/column index into [`CORR`].  Do not assign
 /// explicit values — ordinal position in this enum *is* the index.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[repr(usize)]
 pub enum Asset {
     // ── Fixed Income ──────────────────────────────────────────────────────

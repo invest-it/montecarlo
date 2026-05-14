@@ -1,81 +1,74 @@
+import type { AssetAllocationMap } from "./allocations";
+
 interface Props {
-    labels: string[];
-    allocations: number[];
-    onChange: (allocations: number[]) => void;
+    allocations: AssetAllocationMap;
+    onChange: (allocations: AssetAllocationMap) => void;
     disabled?: boolean;
 }
 
 export function AssetAllocationSlider({
-    labels,
     allocations,
     onChange,
     disabled,
 }: Props) {
-    function handleChange(i: number, newValue: number, reset: boolean = false) {
-        if (reset) {
-            allocations.fill(0);
-        }
-
+    const keys = Object.keys(allocations);
+    function handleChange(
+        label: string,
+        newValue: number,
+        reset: boolean = false,
+    ) {
+        const others = keys.filter((k) => k !== label);
         const remaining = 100 - newValue;
-        const next = reset
-            ? new Array(allocations.length).fill(0)
-            : [...allocations];
-        next[i] = newValue;
 
-        const others = labels.map((_, j) => j).filter((j) => j !== i);
-        const othersSum = others.reduce(
-            (sum, j) => sum + (allocations[j] ?? 0),
+        // 1. Calculate weights: Use current values, or 1 for equal distribution if all are 0
+        const totalWeight = others.reduce(
+            (sum, k) => sum + (reset ? 0 : allocations[k] || 0),
             0,
         );
 
-        if (othersSum === 0) {
-            // Distribute remaining equally across the other sliders
-            const base = Math.floor(remaining / others.length);
-            others.forEach((j, k) => {
-                next[j] = k < remaining % others.length ? base + 1 : base;
-            });
-        } else {
-            // Largest remainder method: floor each share, then give +1 to the
-            // highest-fractional slots until the total reaches `remaining`.
-            // Guarantees all values >= 0 and an exact sum of 100.
-            const exact = others.map(
-                (j) => ((allocations[j] ?? 0) / othersSum) * remaining,
-            );
-            others.forEach((j, k) => {
-                next[j] = Math.floor(exact[k]!);
-            });
-            const leftover =
-                remaining - others.reduce((sum, j) => sum + (next[j] ?? 0), 0);
-            others
-                .map((j, k) => ({ j, frac: exact[k]! % 1 }))
-                .sort((a, b) => b.frac - a.frac)
-                .slice(0, leftover)
-                .forEach(({ j }) => {
-                    next[j] = (next[j] ?? 0) + 1;
-                });
-        }
+        const shares = others.map((key) => ({
+            key,
+            exact:
+                ((reset ? 0 : allocations[key] || 0) || 1 / others.length) *
+                (totalWeight ? remaining / totalWeight : remaining),
+        }));
+
+        // 2. Build the next state with floored values
+        const next: AssetAllocationMap = { [label]: newValue };
+        let currentSum = newValue;
+
+        shares.forEach((s) => {
+            next[s.key] = Math.floor(s.exact);
+            currentSum += next[s.key]!;
+        });
+
+        // 3. Distribute the remaining integers (Largest Remainder Method)
+        shares
+            .sort((a, b) => (b.exact % 1) - (a.exact % 1))
+            .slice(0, 100 - currentSum)
+            .forEach((s) => next[s.key]!++);
 
         onChange(next);
     }
 
     return (
         <div className="flex flex-col">
-            {labels.map((label, i) => (
+            {Object.entries(allocations).map(([label, value]) => (
                 <div key={label} className="flex items-center mb-2">
                     <span className="min-w-48 text-sm">{label}</span>
                     <input
                         type="range"
                         min={0}
                         max={100}
-                        value={allocations[i]}
+                        value={value}
                         onChange={(e) =>
-                            handleChange(i, Number(e.target.value))
+                            handleChange(label, Number(e.target.value))
                         }
                         className="w-full"
                         disabled={disabled}
                     />
                     <span className="min-w-12 text-sm text-right">
-                        {allocations[i]}%
+                        {value}%
                     </span>
                 </div>
             ))}
@@ -83,7 +76,7 @@ export function AssetAllocationSlider({
                 <button
                     className="btn btn-xs"
                     onClick={() => {
-                        handleChange(0, 100);
+                        handleChange(keys[0]!, 100);
                     }}
                 >
                     Reset
@@ -92,8 +85,8 @@ export function AssetAllocationSlider({
                     className="btn btn-xs"
                     onClick={() => {
                         handleChange(
-                            0,
-                            parseInt((100 / allocations.length).toFixed(0)),
+                            keys[0]!,
+                            parseInt((100 / keys.length).toFixed(0)),
                             true,
                         );
                     }}

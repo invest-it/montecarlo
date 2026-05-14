@@ -1,21 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 import { useContextStore } from "../common/hooks";
-import { SimulationContext } from "./SimulationProvider";
+import { SimulationContext, useSelectedAssets } from "./SimulationProvider";
 import type { OutboundMsg, RunMsgV2 } from "../workers/mc_worker";
 import type { ChartAnimation } from "./animation";
 import { TimeUnit } from "@/wasm/core";
-import { initWasm } from "../init-wasm";
+import { normalize } from "./math";
+import { useAssets } from "./settings/assets/data";
 
 export interface SimResults {
     durationMs: number;
     endReturns: { p10: number; p50: number; p90: number };
     endInflation: { p10: number; p50: number; p90: number };
-}
-
-function normalize(allocs: number[]): number[] {
-    const sum = allocs.reduce((a, b) => a + b, 0);
-    if (sum === 0) return allocs.map(() => 1 / allocs.length);
-    return allocs.map((v) => v / sum);
 }
 
 export const useSimulation = (
@@ -33,31 +28,28 @@ export const useSimulation = (
         isRunning,
         setIsRunning,
         allocations,
-        assetIndices,
         useYears,
         portfolio,
         seed,
         stepCount,
         includeInflation,
-        isWasmReady,
-        setIsWasmReady,
     } = useContextStore(SimulationContext, (s) => {
         return {
             isRunning: s.isRunning,
             setIsRunning: s.setRunning,
             allocations: s.allocations,
-            assetIndices: s.assetIndices,
             useYears: s.useYears,
             portfolio: s.portfolio,
             seed: s.seed,
             stepCount: s.stepCount,
             includeInflation: s.includeInflation,
-            isWasmReady: s.isWasmReady,
-            setIsWasmReady: s.setWasmReady,
         };
     });
 
     const [simWorker, setSimWorker] = useState<Worker | null>(null);
+
+    const selectedAssets = useSelectedAssets();
+    const assets = useAssets();
 
     useEffect(() => {
         setIsRunning(simWorker !== null);
@@ -65,10 +57,6 @@ export const useSimulation = (
             simWorker?.terminate();
         };
     }, [simWorker]);
-
-    useEffect(() => {
-        initWasm().then((result) => setIsWasmReady(result.ok));
-    }, []);
 
     const runSimulation = useCallback((): Promise<SimResults> => {
         if (isRunning)
@@ -160,7 +148,18 @@ export const useSimulation = (
             };
         });
 
-        const normalized = normalize(allocations);
+        const [assetIndices, allocValues] = Object.entries<number>(
+            allocations,
+        ).reduce(
+            ([keys, vals], [key, val]) => {
+                keys.push(assets[key]!.index);
+                vals.push(val);
+                return [keys, vals];
+            },
+            [[], []] as [number[], number[]],
+        );
+
+        const normalized = normalize(allocValues);
 
         const timeUnit = useYears ? TimeUnit.Months : TimeUnit.Days;
         const nSteps =
@@ -169,7 +168,7 @@ export const useSimulation = (
         const msg: RunMsgV2 = {
             type: "run_combined_v2",
             allocations: normalized,
-            asset_indices: assetIndices,
+            asset_indices: assetIndices, // Must be in order of allocations which are sorted by index
             time_unit: timeUnit,
             n_steps: nSteps,
             include_inflation: includeInflation,
@@ -196,7 +195,8 @@ export const useSimulation = (
         return promise;
     }, [
         allocations,
-        assetIndices,
+        selectedAssets,
+        assets,
         stepCount,
         seed,
         portfolio,
@@ -207,7 +207,6 @@ export const useSimulation = (
     return {
         runSimulation,
         isRunning,
-        isWasmReady,
         portfolio,
         includeInflation,
     };

@@ -3,7 +3,10 @@ mod utils;
 mod v1;
 mod v2;
 
+use serde_json::json;
 use wasm_bindgen::prelude::*;
+
+use crate::v2::assumptions::Asset;
 
 #[wasm_bindgen]
 extern "C" {
@@ -66,28 +69,30 @@ pub fn run_combined_monte_carlo_v1(
 
 // EuroInflation is always index 0 in the LTCMA universe; used as the inflation
 // reference asset when include_inflation is true.
-const INFLATION_ASSET_IDX: usize = 0;
+const INFLATION_ASSET: &Asset = &Asset::EuroInflation;
 
 /// Returns a JSON array of all investable LTCMA assets (EuroInflation excluded):
 /// `[{index, label, mu, sigma}, ...]`
 #[wasm_bindgen]
 pub fn get_available_assets() -> String {
-    use v2::assumptions::Asset;
-    let parts: Vec<String> = Asset::ALL
+    let mut map = serde_json::Map::new();
+    Asset::ALL
         .iter()
         .enumerate()
-        .filter(|(i, _)| *i != INFLATION_ASSET_IDX)
-        .map(|(_, &asset)| {
-            format!(
-                r#"{{"index":{},"label":"{}","mu":{},"sigma":{}}}"#,
-                asset as usize,
-                asset.label().replace('"', "\\\""),
-                asset.mu(),
-                asset.sigma(),
-            )
-        })
-        .collect();
-    format!("[{}]", parts.join(","))
+        .filter(|(_, asset)| *asset != INFLATION_ASSET)
+        .for_each(|(_, &asset)| {
+            map.insert(
+                String::from(asset.label()),
+                json!({
+                    "index": asset as usize,
+                    "label": asset.label(),
+                    "mu": asset.mu(),
+                    "sigma": asset.sigma(),
+                }),
+            );
+            ()
+        });
+    serde_json::Value::Object(map).to_string()
 }
 
 /// Runs the v2 combined simulation with a user-supplied asset selection and time unit.
@@ -147,7 +152,7 @@ pub fn run_combined_monte_carlo_v2(
     let mut alloc_vec: Vec<f64> = allocation.to_vec();
     let inflation_idx = if include_inflation {
         let idx = assets.len();
-        assets.push(Asset::ALL[INFLATION_ASSET_IDX]);
+        assets.push(*INFLATION_ASSET);
         alloc_vec.push(0.0);
         Some(idx)
     } else {
