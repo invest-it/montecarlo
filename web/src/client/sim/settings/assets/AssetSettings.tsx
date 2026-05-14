@@ -1,6 +1,5 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AssetAllocationSlider } from "./AssetAllocationSlider";
-import { ASSET_LABELS } from "./defaults";
 import { useContextStore } from "@/client/common/hooks";
 import { SimulationContext, useSelectedAssets } from "../../SimulationProvider";
 import { AssetSelectionForm } from "./AssetSelectionForm";

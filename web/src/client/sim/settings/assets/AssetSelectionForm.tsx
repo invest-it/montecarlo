@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { get_available_assets } from "@/wasm/core";
-import { useAssets, useAssetStore, type AssetInfo } from "./data";
+import { useAssets } from "./data";
 
 const CATEGORIES: { label: string; from: number; to: number }[] = [
     { label: "Fixed Income", from: 1, to: 18 },
