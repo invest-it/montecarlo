@@ -69,7 +69,9 @@ function IndexSimulation() {
         },
         {
             title: t("simulation.charts.outcomeGroups.title"),
-            description: t("simulation.charts.outcomeGroups.description", { count: n_groups }),
+            description: t("simulation.charts.outcomeGroups.description", {
+                count: n_groups,
+            }),
             element: (
                 <LineChart
                     labels={[]}
@@ -129,9 +131,11 @@ function IndexSimulation() {
                                       ? t("simulation.run")
                                       : t("simulation.loadingWasm")}
                             </button>
-                            {simResults?.durationMs !== null && !isRunning && (
+                            {simResults?.durationMs != null && !isRunning && (
                                 <span className="text-xs opacity-50">
-                                    {t("simulation.duration", { ms: simResults?.durationMs.toFixed(0) })}
+                                    {t("simulation.duration", {
+                                        ms: simResults?.durationMs.toFixed(0),
+                                    })}
                                 </span>
                             )}
                         </div>

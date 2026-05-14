@@ -73,7 +73,7 @@
         },
         "endReturns": {
             "title": "Endbewertung",
-            "inflationNote": "*Inflationsbereinigt (P50-Inflation = {{rate}}%). Portfoliowert ohne Anlage: {{value}}"
+            "inflationNote": "Inflationsbereinigt (P50-Inflation = {{rate}}%). Portfoliowert ohne Anlage: {{value}}"
         },
         "settings": {
             "portfolio": "Portfolio",

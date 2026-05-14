@@ -1,7 +1,6 @@
 import { useMemo, useState, useTransition } from "react";
 import { useTranslation } from "react-i18next";
 import type { AssetAllocationMap } from "./allocations";
-import _ from "lodash";
 import type { AssetInfoMap } from "./data";
 
 interface AssetAllocationSliderProps {
