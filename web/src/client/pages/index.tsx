@@ -110,8 +110,8 @@ function IndexSimulation() {
         <>
             <div className="flex flex-col lg:flex-row-reverse lg:items-start gap-6 h-full">
                 {/* Controls sidebar */}
-                <div className="space-y-4 lg:w-96 lg:px-5 lg:shrink-0 mb-8 lg:h-full">
-                    <div className="flex flex-col">
+                <div className="lg:w-96 lg:px-5 lg:shrink-0 mb-8 lg:h-full card bg-base-100 shadow-custom">
+                    <div className="flex flex-col card-body">
                         <SimulationSettings />
                         <div className="flex items-center gap-4 mb-10">
                             <button
@@ -153,21 +153,23 @@ function IndexSimulation() {
                 </div>
 
                 {/* Charts grid */}
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 flex-1 min-w-0 lg:p-6">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 flex-1 min-w-0">
                     {charts.map((chart, i) => (
                         <div
                             key={chart.title}
-                            className="cursor-pointer group"
+                            className="cursor-pointer group card bg-base-100 shadow-custom"
                             onClick={() => openChart(i)}
                             title="Click to expand"
                         >
-                            <h3 className="text-sm font-semibold mb-1 group-hover:underline">
-                                {chart.title}
-                            </h3>
-                            <p className="text-xs text-base-content/60 mb-2">
-                                {chart.description}
-                            </p>
-                            {chart.element}
+                            <div className="card-body">
+                                <h3 className="text-sm font-semibold mb-1 group-hover:underline">
+                                    {chart.title}
+                                </h3>
+                                <p className="text-xs text-base-content/60 mb-2">
+                                    {chart.description}
+                                </p>
+                                {chart.element}
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -204,8 +206,8 @@ function IndexSimulation() {
 export function index() {
     return (
         <SimulationProvider>
-            <div className="mx-auto p-6 lg:p-0 h-full">
-                <h2 className="text-xl font-bold mb-6">
+            <div className="mx-auto w-full max-w-7xl">
+                <h2 className="text-4xl font-bold leading-snug mb-8">
                     Monte Carlo Portfolio Simulation
                 </h2>
 
