@@ -27,6 +27,7 @@ function IndexSimulation() {
     const pct_inflation = useChartAnimation(3);
 
     const selectedAssets = useSelectedAssets();
+    const useYears = useContextStore(SimulationContext, (s) => s.useYears);
 
     function openChart(idx: number) {
         setSelectedChartIdx(idx);
@@ -43,6 +44,7 @@ function IndexSimulation() {
                     series={pct.series}
                     renderKey={pct.renderKey}
                     showLegend
+                    useYears={useYears}
                     colors={[
                         "var(--color-error)",
                         "var(--color-warning)",
@@ -58,6 +60,7 @@ function IndexSimulation() {
                 <PercentileChart
                     series={pct.series}
                     renderKey={pct.renderKey}
+                    useYears={useYears}
                 />
             ),
         },
@@ -70,6 +73,7 @@ function IndexSimulation() {
                     series={grp.series}
                     renderKey={grp.renderKey}
                     showLegend={false}
+                    useYears={useYears}
                 />
             ),
         },
@@ -83,6 +87,7 @@ function IndexSimulation() {
                     series={avg.series}
                     renderKey={avg.renderKey}
                     showLegend
+                    useYears={useYears}
                 />
             ),
         },

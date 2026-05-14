@@ -79,9 +79,14 @@ export function EndReturnsCard({
                     </React.Fragment>
                 ))}
             </div>
-            <span className="text-xs font-semibold opacity-50 block mb-2">
-                <sup>*</sup>Inflation adjusted returns
-            </span>
+
+            {inflation && (
+                <span className="text-xs font-semibold opacity-50 block mb-2">
+                    <sup>*</sup>Inflation adjusted returns (p50 inflation ={" "}
+                    {((inflation.p50 - 1) * 100).toFixed(1)}%). Portfolio value
+                    if uninvested: {fmt(portfolio / inflation.p50)}
+                </span>
+            )}
         </div>
     );
 }

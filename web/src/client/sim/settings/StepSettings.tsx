@@ -34,7 +34,7 @@ export function StepSettings() {
                     <input
                         type="number"
                         value={stepCount}
-                        min={1}
+                        min={0}
                         max={useYears ? 50 : 5000}
                         onChange={(e) =>
                             setStepCount(

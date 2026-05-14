@@ -12,11 +12,14 @@ interface Props {
     renderKey: number;
     showLegend?: boolean;
     colors?: string[];
+    useYears?: boolean;
 }
 
 const H = 320;
 const MT = 16;
-const MB = 32;
+// MB_YEARS: one row of labels + axis title; MB_DAYS: two rows of labels + axis title
+const MB_YEARS = 38;
+const MB_DAYS = 54;
 const ML = 60;
 const MR_LEGEND = 120;
 const MR_BARE = 16;
@@ -24,6 +27,9 @@ const MR_BARE = 16;
 const X_TICKS = 5;
 const Y_TICKS = 4;
 const N_STEPS = 1250;
+
+const DAYS_PER_YEAR = 250;
+const MONTHS_PER_YEAR = 12;
 
 const COLORS = d3.schemeTableau10;
 const color = (i: number): string => COLORS[i % COLORS.length] ?? "steelblue";
@@ -46,9 +52,10 @@ interface PercentileChartProps {
     // series[0] = p10, series[1] = p50, series[2] = p90
     series: Point[][];
     renderKey: number;
+    useYears?: boolean;
 }
 
-export function PercentileChart({ series, renderKey }: PercentileChartProps) {
+export function PercentileChart({ series, renderKey, useYears = false }: PercentileChartProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
     const W = useContainerWidth(containerRef);
@@ -56,6 +63,7 @@ export function PercentileChart({ series, renderKey }: PercentileChartProps) {
     useEffect(() => {
         if (!svgRef.current) return;
 
+        const MB = useYears ? MB_YEARS : MB_DAYS;
         const IW = W - ML - MR_BARE;
         const IH = H - MT - MB;
 
@@ -98,14 +106,40 @@ export function PercentileChart({ series, renderKey }: PercentileChartProps) {
                 .attr("y1", IH)
                 .attr("y2", IH + 4)
                 .attr("stroke", "currentColor");
+
+            const primaryLabel = useYears
+                ? String(Math.round(step / MONTHS_PER_YEAR))
+                : String(step);
             g.append("text")
                 .attr("x", x)
                 .attr("y", IH + 16)
                 .attr("text-anchor", "middle")
                 .attr("font-size", 10)
                 .attr("fill", "currentColor")
-                .text(step);
+                .text(primaryLabel);
+
+            if (!useYears) {
+                const yearLabel = `${(step / DAYS_PER_YEAR).toFixed(1).replace(/\.0$/, "")}yr`;
+                g.append("text")
+                    .attr("x", x)
+                    .attr("y", IH + 29)
+                    .attr("text-anchor", "middle")
+                    .attr("font-size", 9)
+                    .attr("fill", "currentColor")
+                    .attr("opacity", 0.5)
+                    .text(yearLabel);
+            }
         }
+
+        // X-axis unit label
+        g.append("text")
+            .attr("x", IW / 2)
+            .attr("y", IH + (useYears ? 30 : 43))
+            .attr("text-anchor", "middle")
+            .attr("font-size", 10)
+            .attr("fill", "currentColor")
+            .attr("opacity", 0.45)
+            .text(useYears ? "Year" : "Trading Days");
 
         // Y axis
         g.append("line")
@@ -201,7 +235,7 @@ export function PercentileChart({ series, renderKey }: PercentileChartProps) {
             .attr("font-size", 11)
             .attr("fill", "currentColor")
             .text("Median (P50)");
-    }, [renderKey, W]);
+    }, [renderKey, W, useYears]);
 
     return (
         <div ref={containerRef} style={{ width: "100%" }}>
@@ -216,6 +250,7 @@ export function LineChart({
     renderKey,
     showLegend = true,
     colors: colorOverrides,
+    useYears = false,
 }: Props) {
     const containerRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
@@ -224,6 +259,7 @@ export function LineChart({
     useEffect(() => {
         if (!svgRef.current) return;
 
+        const MB = useYears ? MB_YEARS : MB_DAYS;
         const MR = showLegend ? MR_LEGEND : MR_BARE;
         const IW = W - ML - MR;
         const IH = H - MT - MB;
@@ -265,14 +301,40 @@ export function LineChart({
                 .attr("y1", IH)
                 .attr("y2", IH + 4)
                 .attr("stroke", "currentColor");
+
+            const primaryLabel = useYears
+                ? String(Math.round(step / MONTHS_PER_YEAR))
+                : String(step);
             g.append("text")
                 .attr("x", x)
                 .attr("y", IH + 16)
                 .attr("text-anchor", "middle")
                 .attr("font-size", 10)
                 .attr("fill", "currentColor")
-                .text(step);
+                .text(primaryLabel);
+
+            if (!useYears) {
+                const yearLabel = `${(step / DAYS_PER_YEAR).toFixed(1).replace(/\.0$/, "")}yr`;
+                g.append("text")
+                    .attr("x", x)
+                    .attr("y", IH + 29)
+                    .attr("text-anchor", "middle")
+                    .attr("font-size", 9)
+                    .attr("fill", "currentColor")
+                    .attr("opacity", 0.5)
+                    .text(yearLabel);
+            }
         }
+
+        // X-axis unit label
+        g.append("text")
+            .attr("x", IW / 2)
+            .attr("y", IH + (useYears ? 30 : 43))
+            .attr("text-anchor", "middle")
+            .attr("font-size", 10)
+            .attr("fill", "currentColor")
+            .attr("opacity", 0.45)
+            .text(useYears ? "Year" : "Trading Days");
 
         // Y axis
         g.append("line")
@@ -344,7 +406,7 @@ export function LineChart({
                     .text(label);
             });
         }
-    }, [renderKey, showLegend, W]);
+    }, [renderKey, showLegend, W, useYears]);
 
     return (
         <div ref={containerRef} style={{ width: "100%" }}>
