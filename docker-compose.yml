@@ -9,16 +9,10 @@ services:
         labels:
             traefik.enable: "true"
 
-            # Router
-            traefik.http.routers.montecarlo.rule: Host(`${DOMAIN}`)
-            traefik.http.routers.montecarlo.entrypoints: web
-            traefik.http.routers.montecarlo.service: montecarlo
-
-            # TLS router (optional — comment out if not using HTTPS)
             traefik.http.routers.montecarlo-tls.rule: Host(`${DOMAIN}`)
             traefik.http.routers.montecarlo-tls.entrypoints: websecure
             traefik.http.routers.montecarlo-tls.tls: "true"
-            traefik.http.routers.montecarlo-tls.tls.certresolver: letsencrypt
+            traefik.http.routers.montecarlo-tls.tls.certresolver: defaultresolver
             traefik.http.routers.montecarlo-tls.service: montecarlo
 
             # Service
