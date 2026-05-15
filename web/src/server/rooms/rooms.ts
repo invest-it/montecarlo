@@ -1,4 +1,4 @@
-import { Err, Ok, type Result } from "@/result";
+import { Err, Ok, type Result } from "@/shared/result";
 
 export interface RoomConfig {
     name: string;

@@ -1,4 +1,4 @@
-import { error, value } from "@/result";
+import { error, value } from "@/shared/result";
 import { initWasm } from "../init-wasm";
 import {
     step_averaged_monte_carlo_v1,

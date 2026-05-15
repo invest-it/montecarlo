@@ -1,5 +1,5 @@
 import { serve } from "bun";
-import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { swaggerUI } from "@hono/swagger-ui";
 import socket from "./server/socket";
 import { roomsAPI } from "./server/rooms/rooms-api";

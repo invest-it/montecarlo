@@ -29,6 +29,7 @@ COPY web/package.json web/bun.lock ./
 RUN bun install --frozen-lockfile --production
 
 COPY web/src src/
+COPY web/tsconfig.json tsconfig.json
 COPY --from=frontend-builder /app/dist dist/
 
 ENV NODE_ENV=production

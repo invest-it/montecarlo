@@ -1,7 +1,7 @@
 // 1. Import the WebAssembly file directly.
 // Bun's bundler will copy this file to your build output folder
 // and resolve 'wasmUrl' to the correct public URL (e.g., '/core_bg-a1b2c3d4.wasm').
-import { Err, Ok, type Result } from "@/result";
+import { Err, Ok, type Result } from "@/shared/result";
 import { initSync, type InitOutput } from "@/wasm/core";
 import wasmUrl from "@/wasm/core_bg.wasm?url";
 import { useEffect, useState } from "react";

@@ -1,7 +1,7 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { createRoom, findRoomById, findRoomByOwner } from "./rooms";
 import { getConnInfo } from "hono/bun";
-import { error } from "@/result";
+import { error } from "@/shared/result";
 import { HTTPException } from "hono/http-exception";
 import {
     CreateRoomRequest,
