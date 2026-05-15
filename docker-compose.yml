@@ -9,13 +9,14 @@ services:
         labels:
             traefik.enable: "true"
 
+            traefik.http.middlewares: demo-auth@file
+
             traefik.http.routers.montecarlo-tls.rule: Host(`${DOMAIN}`)
             traefik.http.routers.montecarlo-tls.entrypoints: websecure
             traefik.http.routers.montecarlo-tls.tls: "true"
             traefik.http.routers.montecarlo-tls.tls.certresolver: defaultresolver
             traefik.http.routers.montecarlo-tls.service: montecarlo
 
-            # Service
             traefik.http.services.montecarlo.loadbalancer.server.port: "3000"
 
             # WebSocket sticky sessions (required for socket.io)
