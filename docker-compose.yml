@@ -9,7 +9,7 @@ services:
         labels:
             traefik.enable: "true"
 
-            traefik.http.routers.montecarlo-tls.middlewares: demo-auth
+            traefik.http.routers.montecarlo-tls.middlewares: demo-auth@file
 
             traefik.http.routers.montecarlo-tls.rule: Host(`${DOMAIN}`)
             traefik.http.routers.montecarlo-tls.entrypoints: websecure
