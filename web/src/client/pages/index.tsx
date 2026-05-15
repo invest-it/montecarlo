@@ -155,16 +155,23 @@ function IndexSimulation() {
                 </div>
 
                 {/* Charts grid */}
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 flex-1 min-w-0">
+                <div
+                    className={`grid grid-cols-1 xl:grid-cols-2 gap-6 flex-1 min-w-0 ${!simResults && !isRunning ? "opacity-70" : ""}`}
+                >
                     {charts.map((chart, i) => (
                         <div
                             key={chart.title}
-                            className="cursor-pointer group card bg-base-100 shadow-custom"
-                            onClick={() => openChart(i)}
+                            className={`group card bg-base-100 shadow-custom ${simResults ? "cursor-pointer" : ""}`}
+                            onClick={() => {
+                                if (!simResults) return;
+                                openChart(i);
+                            }}
                             title={t("simulation.clickToExpand")}
                         >
                             <div className="card-body">
-                                <h3 className="text-sm font-semibold mb-1 group-hover:underline">
+                                <h3
+                                    className={`text-sm font-semibold mb-1 ${simResults ? "group-hover:underline" : ""}`}
+                                >
                                     {chart.title}
                                 </h3>
                                 <p className="text-xs text-base-content/60 mb-2">

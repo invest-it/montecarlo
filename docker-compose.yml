@@ -1,34 +1,33 @@
 services:
-  app:
-    build: .
-    restart: unless-stopped
-    environment:
-      NODE_ENV: production
-    networks:
-      - traefik
-    labels:
-      traefik.enable: "true"
-      traefik.docker.network: traefik
+    app:
+        build: .
+        restart: unless-stopped
+        environment:
+            NODE_ENV: production
+        networks:
+            - traefik-proxy
+        labels:
+            traefik.enable: "true"
 
-      # Router
-      traefik.http.routers.montecarlo.rule: Host(`${DOMAIN}`)
-      traefik.http.routers.montecarlo.entrypoints: web
-      traefik.http.routers.montecarlo.service: montecarlo
+            # Router
+            traefik.http.routers.montecarlo.rule: Host(`${DOMAIN}`)
+            traefik.http.routers.montecarlo.entrypoints: web
+            traefik.http.routers.montecarlo.service: montecarlo
 
-      # TLS router (optional — comment out if not using HTTPS)
-      traefik.http.routers.montecarlo-tls.rule: Host(`${DOMAIN}`)
-      traefik.http.routers.montecarlo-tls.entrypoints: websecure
-      traefik.http.routers.montecarlo-tls.tls: "true"
-      traefik.http.routers.montecarlo-tls.tls.certresolver: letsencrypt
-      traefik.http.routers.montecarlo-tls.service: montecarlo
+            # TLS router (optional — comment out if not using HTTPS)
+            traefik.http.routers.montecarlo-tls.rule: Host(`${DOMAIN}`)
+            traefik.http.routers.montecarlo-tls.entrypoints: websecure
+            traefik.http.routers.montecarlo-tls.tls: "true"
+            traefik.http.routers.montecarlo-tls.tls.certresolver: letsencrypt
+            traefik.http.routers.montecarlo-tls.service: montecarlo
 
-      # Service
-      traefik.http.services.montecarlo.loadbalancer.server.port: "3000"
+            # Service
+            traefik.http.services.montecarlo.loadbalancer.server.port: "3000"
 
-      # WebSocket sticky sessions (required for socket.io)
-      traefik.http.services.montecarlo.loadbalancer.sticky.cookie: "true"
-      traefik.http.services.montecarlo.loadbalancer.sticky.cookie.name: montecarlo_session
+            # WebSocket sticky sessions (required for socket.io)
+            traefik.http.services.montecarlo.loadbalancer.sticky.cookie: "true"
+            traefik.http.services.montecarlo.loadbalancer.sticky.cookie.name: montecarlo_session
 
 networks:
-  traefik:
-    external: true
+    traefik-proxy:
+        external: true
