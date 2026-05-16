@@ -5,7 +5,7 @@ services:
         environment:
             NODE_ENV: production
         networks:
-            - traefik-proxy
+            - proxy-net
         labels:
             traefik.enable: "true"
 
@@ -24,5 +24,6 @@ services:
             traefik.http.services.montecarlo.loadbalancer.sticky.cookie.name: montecarlo_session
 
 networks:
-    traefik-proxy:
+    proxy-net:
         external: true
+        name: ${PROXY_NETWORK}
